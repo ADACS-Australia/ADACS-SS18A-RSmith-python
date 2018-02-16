@@ -8,13 +8,14 @@ import re
 import os
 import git
 
+
 def package_files(directory='data'):
-    """
-    Generate a list of non-code files to be included in the package.
+    """Generate a list of non-code files to be included in the package.
 
     By default, all files in the 'data' directory in the package root will be added.
     :param directory: The path to walk to generate the file list.
     :return: a list of filenames.
+
     """
     paths = []
     for (path, directories, filenames) in os.walk(directory):
@@ -32,10 +33,10 @@ dir_root = git_repo.git.rev_parse("--show-toplevel")
 
 # Read the version file in the project directory
 VERSIONFILE = os.path.join(dir_root, ".version")
-version_string = None
+git_version_string = None
 with open(VERSIONFILE, 'rt') as fp:
-    version_string = fp.read().strip()
-if version_string is None or version_string == "":
+    git_version_string = fp.read().strip()
+if git_version_string is None or git_version_string == "":
     raise RuntimeError("Unable to load version string from %s." % (VERSIONFILE,))
 
 # Check that there's a git repository in the project directory and that the
@@ -48,7 +49,6 @@ if os.path.exists(os.path.join(dir_root, '.git')):
     tags = [tag.strip() for tag in subprocess.check_output(
         'git tag', shell=True, universal_newlines=True).strip().split('\n')]
     # If the tag in the version file is not in the list of project tags ...
-    git_version_string = 'v' + version_string
     if git_version_string not in tags:
         # ... then add that tag to the HEAD commit
         cmd = 'git tag -a %s %s -m "tagged by setup.py"' % (git_version_string, git_hash)
@@ -60,11 +60,11 @@ if os.path.exists(os.path.join(dir_root, '.git')):
 else:
     raise RuntimeError("Unable to find the project's git repository at %s." % (dir_root,))
 
-print('Current version used by `setup.py`:', version_string)
+print('Current version used by `setup.py`:', git_version_string)
 
 package_name = "lal_cuda"
 setup(name=package_name,
-      version=version_string,
+      version=git_version_string,
       description="One line description of project.",
       author='Gregory B. Poole',
       author_email='gbpoole@gmail.com',
@@ -72,6 +72,7 @@ setup(name=package_name,
       package_data={'lal_cuda': package_files()},
       entry_points={
           'console_scripts': [
+              'PhenomPexample=%s.scripts.PhenomPexample:PhenomPexample' % (package_name),
               'lal_cuda_info=%s.scripts.lal_cuda_info:lal_cuda_info' % (package_name)
           ]
       },

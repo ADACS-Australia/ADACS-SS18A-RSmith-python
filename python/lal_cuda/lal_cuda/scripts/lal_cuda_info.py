@@ -14,7 +14,7 @@ dir_python = os.path.abspath(os.path.join(dir_root, "python"))
 # installed version.  We need access to the information in the
 # project directory here.
 for setup_py_i in glob.glob(dir_python + "/**/setup.py", recursive=True):
-    sys.path.insert(0,os.path.abspath(os.path.dirname(setup_py_i)))
+    sys.path.insert(0, os.path.abspath(os.path.dirname(setup_py_i)))
 
 # Import the project development module
 import lal_cuda_dev.project as prj
@@ -25,9 +25,11 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 @click.command(context_settings=CONTEXT_SETTINGS)
 def lal_cuda_params():
-    """
-    Print the dictionary of project parameters stored in the project .project.yml file.
+    """Print the dictionary of project parameters stored in the project
+    .project.yml file.
+
     :return: None
+
     """
     # Set/fetch all the project details we need
     project = prj.project()

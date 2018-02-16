@@ -56,7 +56,7 @@ class project:
             self.params['version'] = 'unset'
         self.params['release'] = self.params['version']
 
-    def print(self):
+    def print2stdout(self):
         """
         Print project parameters to standard out.
         :return: None
