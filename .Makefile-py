@@ -1,0 +1,126 @@
+############################
+# Makefile for Python code #
+############################
+
+# Set default config
+ifndef config
+    config=release
+endif
+
+# Build a list of Python packages (omit the project development package)
+PKGS:=$(shell find python -name 'setup.py' -not -path "python/*_dev/*" -exec dirname {} \;)
+
+# Set the build directory
+BUILD_DIR_PY:=$(PRJ_DIR)/python/build
+
+############################################
+# Python build, install, docs, etc targets #
+############################################
+
+# Perform build
+.PHONY: build-py
+build-py: $(BUILD_DIR_PY) $(addsuffix .BUILD,$(PKGS))
+$(addsuffix .BUILD,$(PKGS)):
+	@$(ECHO) "Building python package {"$(basename $@)"}..."
+	@cd $(basename $@);python setup.py build
+	@$(ECHO) "Done."
+
+# Make the build directory
+$(BUILD_DIR_PY):
+ifeq (,$(wildcard $@))
+	@$(ECHO) -n "Making python build directory {"$@"}..."
+	@mkdir $@
+	@$(ECHO) "Done."
+endif
+
+# Perform installation of python package
+.PHONY: install-py
+install-py: build-py $(addsuffix .INSTALL,$(PKGS))
+$(addsuffix .INSTALL,$(PKGS)): 
+	@$(ECHO) "Installing python package {"$(basename $@)"}..."
+ifeq ($(config),release)
+	@cd $(basename $@);python setup.py install
+else ifeq ($(config),develop)
+	@cd $(basename $@);python setup.py install develop
+else
+    $(error Invalid python build 'config' {$(config)} specified for installation.)
+endif
+	@$(ECHO) "Done."
+
+# Clean-up Python packages
+.PHONY: clean-py
+clean-py:
+	@$(ECHO) -n "Cleaning-up Python debris..."
+	@rm -rf docs/build/
+	@rm -rf python/build/
+	@rm -rf python/dist/
+	@rm -rf python/.tox/
+	@rm -f  python/.coverage
+	@rm -rf python/htmlcov/
+	@cd python;find . -name '*.pyc' -exec rm -f {} +
+	@cd python;find . -name '*.pyo' -exec rm -f {} +
+	@cd python;find . -name '*~' -exec rm -f {} +
+	@cd python;find . -name '__pycache__' -exec rm -fr {} +
+	@cd python;find . -name '*.egg-info' -exec rm -fr {} +
+	@$(ECHO) "Done."
+
+##################################
+# Python targets for developers  #
+##################################
+
+# Run Python tests
+.PHONY: test-py
+test-py: $(addsuffix .TEST,$(PKGS))
+$(addsuffix .TEST,$(PKGS)):
+	@$(ECHO) "Running tests for python package..."
+	@cd $(basename $@);python setup.py test
+ifeq ($(shell which tox),)
+	@$(warning 'tox' not in path.  Please (re)install and try command again if you want it's support.)
+else
+	@cd $(basename $@);tox
+endif
+	@$(ECHO) "Done."
+
+#Compute Python test coverage
+.PHONY: coverage-py
+coverage-py: test-py $(addsuffix .COV,$(PKGS))
+$(addsuffix .COV,$(PKGS)):
+	@$(ECHO) "Generating Python test coverage report for package {"$(basename $@)"}..."
+ifeq ($(shell which tox),)
+	@$(error 'coverage' not in path.  Please (re)install coverage.py and try command again if you want it's support.)
+else
+	@cd $(basename $@);coverage run setup.py test
+	@cd $(basename $@);coverage report -m
+	@cd $(basename $@);coverage html
+endif
+	@$(ECHO) "Done."
+
+# Check Python formating against PEP8 (exception: max line lengths are 120)
+.PHONY: lint-check-py
+lint-check-py: $(addsuffix .LINT-CHECK,$(PKGS))
+$(addsuffix .LINT-CHECK,$(PKGS)):
+	@$(ECHO) -n "Linting python package {"$(basename $@)"}..."
+ifeq ($(shell which autopep8),)
+	@$(error 'autopep8' not in path.  Please (re)install with 'pip install autopep8' and try command again.)
+else ifeq ($(shell which docformatter),)
+	@$(error 'docformatter' not in path.  Please (re)install with 'pip install docformatter' and try command again.)
+else
+	@cd $(basename $@);autopep8 -a -a --max-line-length 120 --diff --exclude=*.tox -r . 
+	@cd $(basename $@);docformatter -r . 
+endif
+	@$(ECHO) "Done."
+
+# Apply Python PEP8 formatting (exception: max line lengths are 120) suggestions in-place
+.PHONY: lint-fix-py
+lint-fix-py: $(addsuffix .LINT-FIX,$(PKGS))
+$(addsuffix .LINT-FIX,$(PKGS)):
+	@$(ECHO) -n "Applying linting suggestions to python package {"$(basename $@)"}..."
+ifeq ($(shell which autopep8),)
+	@$(error 'autopep8' not in path.  Please (re)install with 'pip install autopep8' and try command again.)
+else ifeq ($(shell which docformatter),)
+	@$(error 'docformatter' not in path.  Please (re)install with 'pip install docformatter' and try command again.)
+else
+	@cd $(basename $@);autopep8 -i -a -a --max-line-length 120 --exclude=*.tox -r . 
+	@cd $(basename $@);docformatter -i -r . 
+endif
+	@$(ECHO) "Done."

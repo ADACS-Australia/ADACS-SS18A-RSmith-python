@@ -1,0 +1,28 @@
+# Build products
+*.o
+*.a
+
+# Some annoying Apple stuff
+.DS_Store
+*.dSYM
+
+# Python stuff
+*.pyc
+*.egg
+*.egg-info
+__pycache__
+.idea
+
+# .vi swap files
+*.*.swp
+
+# Common names for out-of-source build directories
+cmake-build-*
+build*
+
+# Used for testing
+mpich
+
+#Miscillaneous
+.install*
+*.old
