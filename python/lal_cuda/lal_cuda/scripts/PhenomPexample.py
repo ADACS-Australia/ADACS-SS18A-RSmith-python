@@ -83,14 +83,22 @@ def PhenomPexample():
     hp_val = H[0].data.data
     hc_val = H[1].data.data
 
+    # Write results to screen
+    for [f_i,hp_i,hc_i] in zip(freqs,hp_val,hc_val):
+        print(f_i,hp_i.real,hp_i.imag,hc_i.real,hc_i.imag)
+
+    # Write results to binary files
+    freqs_file  = open("./freqs.dat", "wb")
+    freqs.tofile(freqs_file)
+    freqs_file.close()
+
     hp_val_file = open("./hp_val.dat", "wb")
-    hc_val_file = open("./hc_val.dat", "wb")
-
-    print("hp_val=", hp_val)
-    print("hc_val=", hc_val)
     hp_val.tofile(hp_val_file)
-    hc_val.tofile(hc_val_file)
+    hp_val_file.close()
 
+    hc_val_file = open("./hc_val.dat", "wb")
+    hc_val.tofile(hc_val_file)
+    hc_val_file.close()
 
 # Permit script execution
 if __name__ == '__main__':

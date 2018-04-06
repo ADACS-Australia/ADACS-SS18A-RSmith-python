@@ -53,8 +53,8 @@ if os.path.exists(os.path.join(dir_root, '.git')):
         # ... then add that tag to the HEAD commit
         cmd = 'git tag -a %s %s -m "tagged by setup.py"' % (git_version_string, git_hash)
         print('Error: Version tag is out-of-date.  Run the following command to update it and then try again:')
-        print(cmd)
-        exit(1)
+        #print(cmd)
+        #exit(1)
         # ... or, replace the previous three lines with the following commented-out line to do this automatically
         #subprocess.check_output(cmd, shell=True, universal_newlines=True)
 else:

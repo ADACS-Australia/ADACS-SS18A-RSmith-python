@@ -35,7 +35,7 @@ def lal_cuda_params():
     project = prj.project()
 
     # Print project information
-    project.print()
+    project.print2stdout()
 
 
 # Permit script execution
