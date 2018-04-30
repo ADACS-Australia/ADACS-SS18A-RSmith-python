@@ -5,6 +5,7 @@ import sys
 import git
 import glob
 import click
+import timeit
 
 sys.path.insert(0, "/home/gpoole/3rd_Party/lib/python2.7/site-packages")
 import lal
@@ -29,9 +30,9 @@ import lal_cuda_dev.docs as docs
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
-
 @click.command(context_settings=CONTEXT_SETTINGS)
-def PhenomPexample():
+@click.option('--n_timing', default=0)
+def PhenomPexample(n_timing):
     """The script calls a higher level function in LALSuite.  The output is two
     binary arrays corresponding to the two outputs hp_val, hc_val from
     PhenomPCore. The outputs are arrays of complex numbers; one for each
@@ -53,16 +54,38 @@ def PhenomPexample():
 
     """
 
-    chi1_l, chi2_l, m1, m2, chip, thetaJ, alpha0, distance, phic, fref = 0.1, 0.2, 30, 30, 0.34, 1.1, 1.5, 1000, np.pi * 0.4, 30
+    chi1_l, chi2_l, m1, m2, chip, thetaJ, alpha0, distance_PC, phic, fref = 0.1, 0.2, 30, 30, 0.34, 1.1, 1.5, 1000, np.pi * 0.4, 30
 
     m1SI = m1 * lal.lal.MSUN_SI
     m2SI = m2 * lal.lal.MSUN_SI
+    distance = distance_PC*lal.lal.PC_SI*100*1e6
 
     flow, fhigh = 20, 100
 
     freqs = np.linspace(flow, fhigh, (fhigh - flow) + 1)
 
-    H = lalsimulation.SimIMRPhenomPFrequencySequence(
+    if(n_timing>0):
+        # Create a callable for timing purposes
+        t = timeit.Timer(lambda: lalsimulation.SimIMRPhenomPFrequencySequence(
+                freqs,
+                chi1_l,
+                chi2_l,
+                chip,
+                thetaJ,
+                m1SI,
+                m2SI,
+                distance,
+                alpha0,
+                phic,
+                fref,
+                1,
+                None
+            ))
+        # Print timing results
+        print("Timing of function: %.5f seconds."%(t.timeit(number=n_timing)))
+
+    print("Running SimIMRPhenomPFrequencySequence...")
+    H=lalsimulation.SimIMRPhenomPFrequencySequence(
         freqs,
         chi1_l,
         chi2_l,
@@ -70,15 +93,13 @@ def PhenomPexample():
         thetaJ,
         m1SI,
         m2SI,
-        distance *
-        lal.lal.PC_SI *
-        100 *
-        1e6,
+        distance,
         alpha0,
         phic,
         fref,
         1,
         None)
+    print("Done.")
 
     hp_val = H[0].data.data
     hc_val = H[1].data.data
@@ -86,6 +107,11 @@ def PhenomPexample():
     # Write results to screen
     for [f_i,hp_i,hc_i] in zip(freqs,hp_val,hc_val):
         print(f_i,hp_i.real,hp_i.imag,hc_i.real,hc_i.imag)
+
+    # Write inputs to binary file
+    inputs_file  = open("./inputs.dat", "wb")
+    np.array([chi1_l,chi2_l,chip,thetaJ,m1SI,m2SI,distance,alpha0,phic,fref]).tofile(inputs_file)
+    inputs_file.close()
 
     # Write results to binary files
     freqs_file  = open("./freqs.dat", "wb")
