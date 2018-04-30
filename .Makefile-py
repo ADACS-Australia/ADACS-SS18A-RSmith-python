@@ -73,7 +73,6 @@ clean-py:
 tests-py: $(addsuffix .TEST,$(PKGS))
 $(addsuffix .TEST,$(PKGS)):
 	@$(ECHO) "Running tests for python package {$(basename $(notdir $@))}..."
-	@cd $(basename $@);python setup.py test
 ifeq ($(shell which tox),)
 	@$(warning 'tox' not in path.  Please (re)install and try command again if you want it's support.)
 else
