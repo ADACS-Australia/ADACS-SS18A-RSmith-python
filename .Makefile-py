@@ -69,10 +69,10 @@ clean-py:
 ##################################
 
 # Run Python tests
-.PHONY: test-py
-test-py: $(addsuffix .TEST,$(PKGS))
+.PHONY: tests-py
+tests-py: $(addsuffix .TEST,$(PKGS))
 $(addsuffix .TEST,$(PKGS)):
-	@$(ECHO) "Running tests for python package..."
+	@$(ECHO) "Running tests for python package {$(basename $(notdir $@))}..."
 	@cd $(basename $@);python setup.py test
 ifeq ($(shell which tox),)
 	@$(warning 'tox' not in path.  Please (re)install and try command again if you want it's support.)
@@ -83,10 +83,10 @@ endif
 
 #Compute Python test coverage
 .PHONY: coverage-py
-coverage-py: test-py $(addsuffix .COV,$(PKGS))
+coverage-py: tests-py $(addsuffix .COV,$(PKGS))
 $(addsuffix .COV,$(PKGS)):
 	@$(ECHO) "Generating Python test coverage report for package {"$(basename $@)"}..."
-ifeq ($(shell which tox),)
+ifeq ($(shell which tox >& /dev/null),)
 	@$(error 'coverage' not in path.  Please (re)install coverage.py and try command again if you want it's support.)
 else
 	@cd $(basename $@);coverage run setup.py test
@@ -100,9 +100,9 @@ endif
 lint-check-py: $(addsuffix .LINT-CHECK,$(PKGS))
 $(addsuffix .LINT-CHECK,$(PKGS)):
 	@$(ECHO) -n "Linting python package {"$(basename $@)"}..."
-ifeq ($(shell which autopep8),)
+ifeq ($(shell which autopep8 >& /dev/null),)
 	@$(error 'autopep8' not in path.  Please (re)install with 'pip install autopep8' and try command again.)
-else ifeq ($(shell which docformatter),)
+else ifeq ($(shell which docformatter >& /dev/null),)
 	@$(error 'docformatter' not in path.  Please (re)install with 'pip install docformatter' and try command again.)
 else
 	@cd $(basename $@);autopep8 -a -a --max-line-length 120 --diff --exclude=*.tox -r . 
@@ -115,9 +115,9 @@ endif
 lint-fix-py: $(addsuffix .LINT-FIX,$(PKGS))
 $(addsuffix .LINT-FIX,$(PKGS)):
 	@$(ECHO) -n "Applying linting suggestions to python package {"$(basename $@)"}..."
-ifeq ($(shell which autopep8),)
+ifeq ($(shell which autopep8 >& /dev/null),)
 	@$(error 'autopep8' not in path.  Please (re)install with 'pip install autopep8' and try command again.)
-else ifeq ($(shell which docformatter),)
+else ifeq ($(shell which docformatter >& /dev/null),)
 	@$(error 'docformatter' not in path.  Please (re)install with 'pip install docformatter' and try command again.)
 else
 	@cd $(basename $@);autopep8 -i -a -a --max-line-length 120 --exclude=*.tox -r . 

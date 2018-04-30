@@ -6,7 +6,6 @@ from os import path
 import subprocess
 import re
 import os
-import git
 
 def package_files(directory='data'):
     """
@@ -22,43 +21,11 @@ def package_files(directory='data'):
             paths.append(os.path.join('..', path, filename))
     return paths
 
+# TODO: add .version to package MANIFEST.in ... research this file vs. package data
+# TODO: get version from this file
+# TODO: add check of this version against git version in Makefile
 
-# Find the project root directory
-git_repo = git.Repo(os.path.realpath(__file__), search_parent_directories=True)
-dir_root = git_repo.git.rev_parse("--show-toplevel")
-
-# The following code which handles versioning was patterned after a solution posted by 'Sven' here:
-# https://stackoverflow.com/questions/6786555/automatic-version-number-both-in-setup-py-setuptools-and-source-code
-
-# Read the version file in the project directory
-VERSIONFILE = os.path.join(dir_root, ".version")
-version_string = None
-with open(VERSIONFILE, 'rt') as fp:
-    version_string = fp.read().strip()
-if version_string is None or version_string == "":
-    raise RuntimeError("Unable to load version string from %s." % (VERSIONFILE,))
-
-# Check that there's a git repository in the project directory and that the
-#   version in the .version file agrees with what's in the git tag.
-if os.path.exists(os.path.join(dir_root, '.git')):
-    # Get the hash of the HEAD commit
-    cmd = 'git rev-parse --verify --short HEAD'
-    git_hash = subprocess.check_output(cmd, shell=True, universal_newlines=True).strip()
-    # Get the list of project tags
-    tags = [tag.strip() for tag in subprocess.check_output(
-        'git tag', shell=True, universal_newlines=True).strip().split('\n')]
-    # If the tag in the version file is not in the list of project tags ...
-    git_version_string = 'v' + version_string
-    if git_version_string not in tags:
-        # ... then add that tag to the HEAD commit
-        cmd = 'git tag -a %s %s -m "tagged by setup.py"' % (git_version_string, git_hash)
-        print('Error: Version tag is out-of-date.  Run the following command to update it and then try again:')
-        #print(cmd)
-        #exit(1)
-        # ... or, replace the previous three lines with the following commented-out line to do this automatically
-        #subprocess.check_output(cmd, shell=True, universal_newlines=True)
-else:
-    raise RuntimeError("Unable to find the project's git repository at %s." % (dir_root,))
+version_string="0.1"
 
 print('Current version used by `setup.py`:', version_string)
 
@@ -70,6 +37,8 @@ setup(
     author='Gregory B. Poole',
     author_email='gbpoole@gmail.com',
     install_requires=['Click'],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
     package_data={
         'lal_cuda_dev': package_files()},
     entry_points={

@@ -85,10 +85,10 @@ submodules:
 .PHONY: requirements
 requirements:
 	@$(ECHO) "Making sure that all needed Python modules are present..."
-ifeq ($(shell which python),)
+ifeq ($(shell which python >& /dev/null),)
 	@$(error "'python' not in path.  Please install it or fix your environment and try again.)
 endif
-ifeq ($(shell which pip),)
+ifeq ($(shell which pip >& /dev/null),)
 	@$(error "'pip' not in path.  Please install it or fix your environment and try again.)
 endif
 	# Install everything in the requirements file
@@ -147,7 +147,7 @@ lint-fix:	.print_status $(LINT_FIX_LIST)
 requirements-update: .requirements.txt
 .requirements.txt:
 	@$(ECHO) "Generating project Python requirements..."
-ifeq ($(shell which pigar),)
+ifeq ($(shell which pigar >& /dev/null),)
 	@$(error "'pigar' not in path.  Please install it with 'pip install pigar' and try again.)
 else
 	@pigar -p .requirements.txt

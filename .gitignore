@@ -9,6 +9,9 @@
 # Python stuff
 *.pyc
 *.egg
+*.eggs
+*.pytest_cache
+*.tox
 *.egg-info
 __pycache__
 .idea
