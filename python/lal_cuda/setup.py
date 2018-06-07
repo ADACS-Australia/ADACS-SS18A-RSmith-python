@@ -1,46 +1,42 @@
-from distutils.core import setup
-
-from setuptools import setup, find_packages
-from codecs import open
-from os import path
-import subprocess
-import re
 import os
+import sys
+from setuptools import setup, find_packages
 
-def package_files(directory='lal_cuda/data'):
-    """Generate a list of non-code files to be included in the package.
+# Make sure that what's in this path takes precidence
+# over an installed version of the project
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 
-    By default, all files in the 'data' directory in the package root will be added.
-    :param directory: The path to walk to generate the file list.
-    :return: a list of filenames.
+import gbpBuild.project as prj
+import gbpBuild.package as pkg
+import gbpBuild.log as SID
 
-    """
-    paths = []
-    for (path, directories, filenames) in os.walk(directory):
-        for filename in filenames:
-            paths.append(os.path.join('..', path, filename))
-    return paths
+# Fetch all the meta data for the project & package
+this_project = prj.project(os.path.abspath(__file__))
+this_package = pkg.package(os.path.abspath(__file__))
 
-version_string="0.1"
+# Print project and package meta data to stdout
+SID.log.comment('')
+SID.log.comment(this_project)
+SID.log.comment(this_package)
 
-print('Current version used by `setup.py`:', version_string)
+# This line converts the package_scripts list above into the entry point 
+# list needed by Click, provided that: 
+#    1) each script is in its own file
+#    2) the script name matches the file name
+#    3) There is only one script per file
+entry_points = [ "%s=%s.scripts.%s:%s"%(script_name_i,this_package.params['name'],script_pkg_path_i,script_name_i) for script_name_i,script_pkg_path_i in this_package.collect_package_scripts() ]
 
-package_name = "lal_cuda"
-setup(name=package_name,
-      version=version_string,
-      description="One line description of project.",
-      author='Gregory B. Poole',
-      author_email='gbpoole@gmail.com',
-      install_requires=['Click'],
-      setup_requires=['pytest-runner'],
-      tests_require=['pytest','tox'],
-      package_data={'lal_cuda': package_files()},
-      entry_points={
-          'console_scripts': [
-              'PhenomPexample=%s.scripts.PhenomPexample:PhenomPexample' % (package_name),
-              'PhenomPexample_mcmc=%s.scripts.PhenomPexample_mcmc:PhenomPexample_mcmc' % (package_name),
-              'lal_cuda_info=%s.scripts.lal_cuda_info:lal_cuda_info' % (package_name)
-          ]
-      },
-      packages=find_packages(),
-      )
+# Execute setup
+setup(
+    name=this_package.params['name'],
+    version=this_project.params['version'],
+    description=this_package.params['description'],
+    author=this_project.params['author'],
+    author_email=this_project.params['author_email'],
+    install_requires=['Click','gbpBuild','PyYAML'],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
+    packages=find_packages(),
+    entry_points={'console_scripts': entry_points},
+    package_data={this_package.params['name']: this_package.package_files},
+)

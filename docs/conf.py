@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# lal_cuda documentation build configuration file
+# Project documentation build configuration file
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -17,6 +17,7 @@
 # documentation root, use os.path.abspath to make it absolute
 
 import os
+import subprocess
 import sys
 import git
 import glob
@@ -25,25 +26,31 @@ import breathe # This is here so that pigar will catch it when generating requir
 from datetime import datetime
 from recommonmark.parser import CommonMarkParser
 
-# Find the project root directory
-git_repo = git.Repo(os.path.realpath(__file__), search_parent_directories=True)
-dir_root = git_repo.git.rev_parse("--show-toplevel")
-dir_python = os.path.abspath(os.path.join(dir_root, "python"))
-
-# Include the paths to local python projects (including the _dev package)
-for setup_py_i in glob.glob(dir_python + "/**/setup.py", recursive=True):
-    sys.path.append(os.path.abspath(os.path.dirname(setup_py_i)))
-
 # Include the project development module
-import lal_cuda_dev.project as prj
-import lal_cuda_dev.docs as docs
+import gbpBuild.project as prj
+import gbpBuild.docs as docs
 
 # Parse the project directory to learn what we need about the project
-this_project = prj.project()
+this_project = prj.project(os.path.abspath(__file__))
+
+# Add all python packages from this project to the path
+this_project.add_packages_to_path()
 
 # Add it to the project path
 breathe_directory = "%s/breathe/" % (this_project.params['dir_docs_build'])
 sys.path.append(breathe_directory)
+
+# If the is a Readthedocs build, then we need to run Doxygen
+if (os.environ.get('READTHEDOCS', None) == 'True'):
+    path_doxyfile=os.path.join(this_project.params['dir_docs'],"Doxyfile")
+    dir_doxy_xml=os.path.join(this_project.params['dir_docs'],"xml")
+    with open(path_doxyfile,"w") as fp_out:
+        fp_out.write("OUTPUT_DIRECTORY=docs\n")
+        fp_out.write("GENERATE_XML=YES\n")
+        fp_out.write("RECURSIVE=YES\n")
+    subprocess.call("cd ..; doxygen %s"%(path_doxyfile), shell=True)
+else:
+    dir_doxy_xml=os.path.join(this_project.params['dir_docs_build'],"doxygen/xml")
 
 # -- General configuration ------------------------------------------------
 
@@ -63,11 +70,11 @@ extensions = ['sphinx.ext.autodoc',
               'breathe']
 
 # Some things that Breathe needs
-breathe_projects = {this_project.params['project_name']: "%s/doxygen/xml/" % (this_project.params['dir_docs_build'])}
-breathe_default_project = this_project.params['project_name']
+breathe_projects = {this_project.params['name']: "%s/doxygen/xml/" % (this_project.params['dir_docs_build'])}
+breathe_default_project = this_project.params['name']
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['%s/templates' % (this_project.dir_root)]
+templates_path = ['%s/templates' % (this_project.params['path_project_root'])]
 
 # Add a markdown parser
 source_parsers = {
@@ -87,10 +94,10 @@ master_doc = 'index'
 #exclude_patterns = '*.rst'
 
 # General information about the project.
-project = this_project.params['project_name']
+project = this_project.params['name']
 year = datetime.today().year
-copyright = str(year) + ', %s' % (this_project.params['project_author'])
-author = this_project.params['project_author']
+copyright = str(year) + ', %s' % (this_project.params['author'])
+author = this_project.params['author']
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -112,7 +119,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['build*', '**/extern']
+exclude_patterns = ['build*', '_build*', '**/extern']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -135,7 +142,7 @@ html_sidebars = {'**': ['globaltoc.html', 'relations.html', 'sourcelink.html', '
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = {'gbp_project_name': this_project.params['project_name']}
+html_theme_options = {'gbp_project_name': this_project.params['name']}
 
 extra_nav_links = {'Index': 'genindex.html'}
 
@@ -147,7 +154,7 @@ html_static_path = ['static']
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = '%sdoc' % (this_project.params['project_name'])
+htmlhelp_basename = '%sdoc' % (this_project.params['name'])
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -175,10 +182,10 @@ latex_elements = {
 latex_documents = [
     (master_doc,
      '%s.tex' %
-     (this_project.params['project_name']),
+     (this_project.params['name']),
      '%s Documentation' %
-     (this_project.params['project_name']),
-     this_project.params['project_author'],
+     (this_project.params['name']),
+     this_project.params['author'],
      'manual'),
 ]
 
@@ -189,9 +196,9 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     (master_doc,
-     this_project.params['project_name'].lower(),
+     this_project.params['name'].lower(),
      '%s Documentation' %
-     (this_project.params['project_name']),
+     (this_project.params['name']),
      [author],
      1)]
 
@@ -202,7 +209,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, this_project.params['project_name'], '%s Documentation' % (this_project.params['project_name']),
-     author, this_project.params['project_name'], this_project.params['project_description'],
+    (master_doc, this_project.params['name'], '%s Documentation' % (this_project.params['name']),
+     author, this_project.params['name'], this_project.params['description'],
      'Miscellaneous'),
 ]

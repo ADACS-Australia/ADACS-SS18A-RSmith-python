@@ -10,21 +10,28 @@
 *.pyc
 *.egg
 *.eggs
-*.pytest_cache
-*.tox
 *.egg-info
 __pycache__
+.pytest_cache
+.src
+
+# JetBrains stuff
 .idea
 
 # .vi swap files
 *.*.swp
 
+# cmake stuff
+.cmake-tmp*
+
 # Common names for out-of-source build directories
 cmake-build-*
-build*
+build-*
+build
+_build
 
-# Used for testing
-mpich
+# Scratch directory used for testing
+.tests
 
 #Miscillaneous
 .install*

@@ -1,4 +1,4 @@
-# Build configuration parameters for project: lal_cuda
+# Build configuration parameters for package: lal_cuda
 - name: lal_cuda
 - author: Gregory B. Poole
 - author_email: gbpoole@gmail.com

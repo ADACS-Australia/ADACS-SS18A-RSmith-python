@@ -1,6 +1,6 @@
 # Configure Readthedocs
 
-requirements_file: .requirements.txt
+requirements_file: .requirements_rtd.txt
 
 build:
     image: latest

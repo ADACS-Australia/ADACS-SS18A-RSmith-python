@@ -31,9 +31,9 @@ addons:
 
 # All the tests will be run by this Makefile
 script: |
-    make -f test/Makefile tests 
+    make tests 
 
 # Add the following lines to generate Codecov report
 after_success: |
-    make -f test/Makefile kcov
+    make kcov
 
