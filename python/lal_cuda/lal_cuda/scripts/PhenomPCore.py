@@ -3,54 +3,31 @@ import numpy as np
 import pylab as plt
 import os
 import sys
-import git
-import glob
 import click
 import timeit
 import math
 
-sys.path.insert(0, "/home/gpoole/3rd_Party/lib/python2.7/site-packages")
 import lal
 import lalsimulation
 import lal_cuda
 
-# Find the project root directory
-git_repo = git.Repo(os.path.realpath(__file__), search_parent_directories=True)
-dir_root = git_repo.git.rev_parse("--show-toplevel")
-dir_python = os.path.abspath(os.path.join(dir_root, "python"))
-
-# Include the paths to local python projects (including the _dev package)
-# Make sure we prepend to the list to make sure that we don't use an
-# installed version.  We need access to the information in the
-# project directory here.
-for root, dirs, files in os.walk(dir_python):
-    if("setup.py" in files):
-        sys.path.insert(0, os.path.abspath(root))
-
-# Import the project development module
-import lal_cuda_dev.project as prj
-import lal_cuda_dev.docs as docs
-
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
-
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option('--n_timing', default=0)
 @click.option('--n_freq', default=0)
 @click.option('--write2stdout/--no-write2stdout', default=False)
 @click.option('--write2bin/--no-write2bin', default=False)
-def PhenomPexample(n_timing,n_freq,write2stdout,write2bin):
-    """The script calls a higher level function in LALSuite.  The output is two
+def PhenomPCore(n_timing,n_freq,write2stdout,write2bin):
+    """This script calls a higher-level function in LALSuite.  The output is two
     binary arrays corresponding to the two outputs hp_val, hc_val from
     PhenomPCore. The outputs are arrays of complex numbers; one for each
-    frequency bin. In this example, the function is evaluated at 81 frequency
-    bins so the output arrays should each contain 81 complex numbers. Some
-    explanation of the code below:
+    frequency bin. 
 
-    I'm calling (from python):
+    The call:
 
     lalsimulation.SimIMRPhenomPFrequencySequence(...)
 
-    which is calling the C-function XLALSimIMRPhenomPFrequencySequence.  That function calls PhenomPCore which in turn calls PhenomPCoreOneFrequency.  The arguments that are passes to PhenomPCoreOneFrequency:
+    calls the C-function XLALSimIMRPhenomPFrequencySequence.  That function then calls PhenomPCore which in-turn calls PhenomPCoreOneFrequency.  The arguments that are passed to PhenomPCoreOneFrequency:
 
     (f, eta, chi1_l, chi2_l, chip, distance, M, phic, pAmp, pPhi, PCparams, pn, &angcoeffs, &Y2m, alphaNNLOoffset - alpha0, epsilonNNLOoffset, &hp_val, &hc_val, &phasing, IMRPhenomP_version, &amp_prefactors, &phi_prefactors)
 
@@ -74,6 +51,10 @@ def PhenomPexample(n_timing,n_freq,write2stdout,write2bin):
     else:
         freqs = np.linspace(flow, fhigh, n_freq)
 
+    # Initialize buffer
+    #buf = lalsimulation.PhenomPCore_buffer_alloc(n_freq)
+    buf = None
+
     # Perform timing test if required
     if(n_timing>0):
         # Create a callable for timing purposes
@@ -90,6 +71,7 @@ def PhenomPexample(n_timing,n_freq,write2stdout,write2bin):
                 phic,
                 fref,
                 1,
+                buf,
                 None
             ))
         # Burning first call (to avoid CUDA context establishment, etc)
@@ -114,9 +96,13 @@ def PhenomPexample(n_timing,n_freq,write2stdout,write2bin):
         phic,
         fref,
         1,
+        buf,
         None)
     hp_val = H[0].data.data
     hc_val = H[1].data.data
+
+    # Clean-up the buffer
+    lalsimulation.PhenomPCore_buffer_free(buf)
 
     # This flag declares whether the reference test dataset's inputs are the same as the run-time dataset
     flag_valid_ref = True

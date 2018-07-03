@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 # Make sure that what's in this path takes precidence
 # over an installed version of the project
-sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+sys.path.insert(0,os.path.abspath(__file__))
 
 import gbpBuild.project as prj
 import gbpBuild.package as pkg
@@ -24,7 +24,13 @@ SID.log.comment(this_package)
 #    1) each script is in its own file
 #    2) the script name matches the file name
 #    3) There is only one script per file
-entry_points = [ "%s=%s.scripts.%s:%s"%(script_name_i,this_package.params['name'],script_pkg_path_i,script_name_i) for script_name_i,script_pkg_path_i in this_package.collect_package_scripts() ]
+SID.log.comment("Executable scripts:")
+package_scripts = this_package.collect_package_scripts()
+entry_points = []
+for script_name_i,script_pkg_path_i in package_scripts:
+    entry_points.append("%s=%s.scripts.%s:%s"%(script_name_i,this_package.params['name'],script_pkg_path_i,script_name_i))
+    SID.log.append(" %s"%(script_name_i))
+SID.log.unhang()
 
 # Execute setup
 setup(
@@ -33,7 +39,7 @@ setup(
     description=this_package.params['description'],
     author=this_project.params['author'],
     author_email=this_project.params['author_email'],
-    install_requires=['Click','gbpBuild','PyYAML'],
+    install_requires=['Click'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     packages=find_packages(),

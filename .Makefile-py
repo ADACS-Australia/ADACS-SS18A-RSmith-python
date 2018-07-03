@@ -8,7 +8,7 @@ ifndef config
 endif
 
 # Build a list of Python packages (omit the project development package)
-PKGS:=$(shell find python -name 'setup.py' -maxdepth 2 -exec dirname {} \;)
+PKGS:=$(shell find python -maxdepth 2 -name 'setup.py' -exec dirname {} \;)
 
 # Set the build directory
 BUILD_DIR_PY:=$(PRJ_DIR)/python/build
