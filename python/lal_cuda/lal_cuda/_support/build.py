@@ -3,7 +3,7 @@ import sys
 
 # Make sure that what's in this path takes precidence
 # over an installed version of the project
-sys.path.insert(0,os.path.join(os.path.abspath(__file__),'..'))
+sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..')))
 
 import lal_cuda._support.log as SID
 

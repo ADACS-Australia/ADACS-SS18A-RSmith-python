@@ -1,10 +1,13 @@
 from __future__ import print_function
 import numpy as np
-import pylab as plt
 import os
 import sys
 import click
 import math
+
+import lal
+import lalsimulation
+import lal_cuda
 
 def test_PhenomPCore():
     """
@@ -24,7 +27,7 @@ def test_PhenomPCore():
     # Load test reference dataset's inputs
     inputs_file = open(lal_cuda.full_path_datafile("inputs.dat"), "rb")
     inputs_ref=dict(zip(['chi1_l','chi2_l','chip','thetaJ','m1SI','m2SI','distance','alpha0','phic','fref'],np.fromfile(inputs_file,dtype=inputs_runtime.dtype,count=len(inputs_runtime))))
-    freqs_ref=np.fromfile(inputs_file,dtype=freqs.dtype,count=len(freqs))
+    freqs_ref=np.fromfile(inputs_file,dtype=np.float32,count=len(freqs))
     inputs_file.close()
 
     # Perform runtime call
