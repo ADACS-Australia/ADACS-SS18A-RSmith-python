@@ -9,8 +9,8 @@ import sys
 # over an installed version of the project
 sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..')))
 
-import lal_cuda._support.build as bld
-import lal_cuda._support.log as SID
+import lal_cuda
+import lal_cuda._internal.log as SID
 
 class package:
     """
@@ -21,7 +21,7 @@ class package:
     def __init__(self,path_call):
 
         # Scan upwards from the given path until 'setup.py' is found.  That will be the package parent directory.
-        self.path_package_parent = bld.find_in_parent_path(path_call,".package.yml")
+        self.path_package_parent = lal_cuda.find_in_parent_path(path_call,".package.yml")
 
         # Assume that the tail of the root path is the package name
         self.package_name = os.path.basename(self.path_package_parent)
@@ -56,6 +56,11 @@ class package:
             if(path!="__pycache__"):
                 for filename in filenames:
                     paths.append(os.path.join('..', path, filename))
+
+        # Convert all entries to relative paths
+        for i_path, path_i in enumerate(paths):
+            paths[i_path]=os.path.relpath(path_i,start=self.path_package_parent)
+
         return paths
 
     def collect_package_scripts(self):

@@ -1,0 +1,3 @@
+include .package.yml .project_aux.yml .project.yml setup.cfg setup.py
+graft data/
+recursive-include *.txt *.py 

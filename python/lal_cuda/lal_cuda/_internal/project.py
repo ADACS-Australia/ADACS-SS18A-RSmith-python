@@ -10,8 +10,8 @@ import sys
 # over an installed version of the project
 sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..')))
 
-import lal_cuda._support.build as bld
-import lal_cuda._support.log as SID
+import lal_cuda
+import lal_cuda._internal.log as SID
 
 # This hack deals with a python2.7 error with PyYaml, See here:
 # https://stackoverflow.com/questions/27518976/how-can-i-get-pyyaml-safe-load-to-handle-python-unicode-tag
@@ -34,7 +34,7 @@ class project:
         self.filename_auxiliary_filename = '.project_aux.yml'
 
         # Set the filename of the package copy of the project file
-        package_root = bld.find_in_parent_path(self.path_call,self.filename_project_filename)
+        package_root = lal_cuda.find_in_parent_path(self.path_call,self.filename_project_filename)
         if(package_root!=None):
             self.filename_project_file = os.path.join(package_root,self.filename_project_filename)
             self.filename_auxiliary_file = os.path.abspath(os.path.join(os.path.dirname(self.filename_project_file),self.filename_auxiliary_filename))

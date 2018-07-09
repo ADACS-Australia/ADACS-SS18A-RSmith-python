@@ -5,9 +5,9 @@ import sys
 # over an installed version of the project
 sys.path.insert(0,os.path.join(os.path.abspath(__file__),'..'))
 
-import lal_cuda._support.log as SID
+import lal_cuda._internal.log as SID
 
-_PACKAGE_ROOT = os.path.abspath(os.path.dirname(__file__))
+_PACKAGE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
 def full_path_datafile(path):
     """
     Return the full *INSTALLED* path to a directory in the package's root directory.

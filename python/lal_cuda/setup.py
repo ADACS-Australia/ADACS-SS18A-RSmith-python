@@ -6,9 +6,9 @@ from setuptools import setup, find_packages
 # over an installed version of the project
 sys.path.insert(0,os.path.abspath(__file__))
 
-import lal_cuda._support.project as prj
-import lal_cuda._support.package as pkg
-import lal_cuda._support.log as SID
+import lal_cuda._internal.project as prj
+import lal_cuda._internal.package as pkg
+import lal_cuda._internal.log     as SID
 
 # Fetch all the meta data for the project & package
 this_project = prj.project(os.path.abspath(__file__))
@@ -33,7 +33,6 @@ for script_name_i,script_pkg_path_i in package_scripts:
 SID.log.unhang()
 
 # Execute setup
-print("Data files:",this_package.package_files)
 setup(
     name=this_package.params['name'],
     version=this_project.params['version'],
@@ -45,6 +44,5 @@ setup(
     tests_require=['pytest'],
     packages=find_packages(),
     entry_points={'console_scripts': entry_points},
-    package_data={this_package.params['name']: this_package.package_files},
     include_package_data=True
 )
