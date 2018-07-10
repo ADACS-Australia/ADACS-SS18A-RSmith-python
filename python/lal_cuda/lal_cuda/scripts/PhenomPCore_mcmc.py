@@ -8,45 +8,26 @@ import click
 from scipy.misc import logsumexp
 import emcee
 
-sys.path.insert(0, "/home/gpoole/3rd_Party/lib/python2.7/site-packages")
 import lal
 import lalsimulation
-
 import lal_cuda
-
-# Find the project root directory
-git_repo = git.Repo(os.path.realpath(__file__), search_parent_directories=True)
-dir_root = git_repo.git.rev_parse("--show-toplevel")
-dir_python = os.path.abspath(os.path.join(dir_root, "python"))
-
-# Include the paths to local python projects (including the _dev package)
-# Make sure we prepend to the list to make sure that we don't use an
-# installed version.  We need access to the information in the
-# project directory here.
-for root, dirs, files in os.walk(dir_python):
-    if("setup.py" in files):
-        sys.path.insert(0, os.path.abspath(root))
-
-# Import the project development module
-import lal_cuda_dev.project as prj
-import lal_cuda_dev.docs as docs
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 @click.command(context_settings=CONTEXT_SETTINGS)
-def PhenomPexample_mcmc():
+def PhenomPCore_mcmc():
 
+    # Initialize random seed
     np.random.seed(0)
     
-    ######## load in data from file
-    
-    data_file = np.column_stack( np.loadtxt(lal_cuda.full_path_datafile("H1-freqData.dat")) )
+    # Load data from file
+    data_file = np.column_stack( np.loadtxt(lal_cuda.full_path_datafile(lal_cuda.full_path_datafile("H1-freqData.dat"))) )
     data = data_file[1] + 1j*data_file[2]
-    psd_file = np.column_stack( np.loadtxt(lal_cuda.full_path_datafile("H1-PSD.dat")) )
+    psd_file = np.column_stack( np.loadtxt(lal_cuda.full_path_datafile(lal_cuda.full_path_datafile("H1-PSD.dat"))) )
     psd = psd_file[1]
     # data and psd start at 0Hz: remove data and psd below fmin
     
-    ### some bookkeeping functions
+    # Some book keeping functions
     def mc_eta_to_m1m2(mc, eta):
       # note m1 >= m2
       if eta <= 0.25 and eta > 0.:
@@ -61,14 +42,13 @@ def PhenomPexample_mcmc():
     def q_to_nu(q):
         """Convert mass ratio (which is >= 1) to symmetric mass ratio"""
         return q / (1.+q)**2.
-    ############################################################
      
     def htilde_of_f(freqs, m1, m2, chi1L, chi2L, chip, thetaJ, alpha, dist, fplus, fcross, phi_c):
     
         fref = 20.
 
         # 0Hz, so use this to get the wavefrom from fmin 
-        H = lalsimulation.SimIMRPhenomPFrequencySequence(freqs, chi1L, chi2L, chip, thetaJ, m1, m2, dist, alpha, phi_c, fref, 1, None)
+        H = lalsimulation.SimIMRPhenomPFrequencySequence(freqs, chi1L, chi2L, chip, thetaJ, m1, m2, dist, alpha, phi_c, fref, 1, None, None)
         hplus = H[0].data.data
         hcross = H[1].data.data
     
@@ -76,14 +56,13 @@ def PhenomPexample_mcmc():
     
         return htilde
     
-    ### This is used to check that only samples within the above ranges are evaluated in the likelihood function
+    # This is used to check that only samples within the above ranges are evaluated in the likelihood function
     def prior(mc):  
         mc_min, mc_max = 13., 40.
         if (mc >= mc_min) and (mc <= mc_max):
             return 1
         else:
             return 0
-    ##################################################################################################################################
     
     def logprob(mc, data, psd, freqs):
         mc = mc[0] 
@@ -116,33 +95,29 @@ def PhenomPexample_mcmc():
         else:
             return -np.inf
     
-    # parameter ranges
+    # Parameter ranges
     fmin = 20.
     fmax = 1024
     deltaF = 1./4.
     freqs = np.linspace(fmin, fmax, int( (fmax-fmin) / deltaF) + 1) ### frequencies at which waveform spectra is evaluated at
-    #######################################
     
-    # initial values of parameters used by emcee
+    # Initial values of parameters used by emcee
     nwalkers = 100
     ndim = 1
     nsteps = 2000
     
     p0 =  [ [np.random.uniform(13,40)] for i in range(nwalkers)]#np.random.uniform(low=mc_min, high=mc_max, size=nwalkers)
-    ###########################################################################################
     
-    ### start sampler
+    # Start sampler
     sampler = emcee.EnsembleSampler(nwalkers, ndim, logprob, args=(data, psd, freqs))
-    
     sampler.run_mcmc(p0, nsteps)
-    #####################################################################################################################
     
-    # save samples
+    # Save samples
     import pickle
     pickle.dump( sampler.flatchain, open( "posterior_samples.p", "wb" ) )
-    
+
+    # Generate plot
     import matplotlib.pyplot as pl
-    
     for i in range(ndim):
         pl.figure()
         #pl.hist(sampler.flatchain[:,i][::int(sampler.acor[i])], 100, color="k", histtype="step")
@@ -152,5 +127,5 @@ def PhenomPexample_mcmc():
 
 # Permit script execution
 if __name__ == '__main__':
-    status = lal_cuda_params()
+    status = PhenomPCore_mcmc()
     sys.exit(status)
