@@ -41,6 +41,7 @@ class package:
         Generate a list of non-code files to be included in the package.
     
         By default, all files in the 'data' directory in the package root will be added.
+        Paths need to be absolute for 'include_package_data' in setup.py to work.
         :return: a list of absolute paths.
         """
         paths = []
@@ -52,14 +53,10 @@ class package:
         paths.append(os.path.abspath(os.path.join(self.path_package_parent,".package.yml")))
 
         # Add the data directory
-        for (path, directories, filenames) in os.walk(os.path.join(self.path_package_root,"data"),followlinks=True):
+        for (path, directories, filenames) in os.walk(os.path.join(self.path_package_parent,"data"),followlinks=True):
             if(path!="__pycache__"):
                 for filename in filenames:
                     paths.append(os.path.join('..', path, filename))
-
-        # Convert all entries to relative paths
-        for i_path, path_i in enumerate(paths):
-            paths[i_path]=os.path.relpath(path_i,start=self.path_package_parent)
 
         return paths
 

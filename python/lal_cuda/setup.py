@@ -44,5 +44,6 @@ setup(
     tests_require=['pytest'],
     packages=find_packages(),
     entry_points={'console_scripts': entry_points},
+    package_data={this_package.params['name']: this_package.package_files},
     include_package_data=True
 )

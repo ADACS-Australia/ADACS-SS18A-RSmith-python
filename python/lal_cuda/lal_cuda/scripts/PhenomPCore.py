@@ -6,7 +6,7 @@ import timeit
 
 import lal
 import lalsimulation
-import lal_cuda.support as support
+import lal_cuda.SimIMRPhenomPFrequencySequence as model
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.command(context_settings=CONTEXT_SETTINGS)
@@ -27,7 +27,8 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.option('--write2stdout/--no-write2stdout', default=True, show_default=True)
 @click.option('--write2bin/--no-write2bin',       default=False,show_default=True)
 @click.option('--check/--no-check',               default=False,show_default=True)
-def PhenomPCore(timing_test, n_freq, chi1, chi2, m1, m2, chip, thetaj, alpha0, distance, phic, fref, flow, fhigh, write2stdout, write2bin, check):
+@click.option('--legacy/--no-legacy',             default=False,show_default=True)
+def PhenomPCore(timing_test, n_freq, chi1, chi2, m1, m2, chip, thetaj, alpha0, distance, phic, fref, flow, fhigh, write2stdout, write2bin, check, legacy):
     """This script calls a higher-level function in LALSuite.  The output is two
     binary arrays corresponding to the two outputs hp_val, hc_val from PhenomPCore.
 
@@ -41,10 +42,14 @@ def PhenomPCore(timing_test, n_freq, chi1, chi2, m1, m2, chip, thetaj, alpha0, d
 
     """
 
-    # Parse the 'timing_test' option, if it is given
+    # Parse the 'timing_test' option.  If it is given,
+    # then assume that it specifies a range of frequencies
+    # to test, the number of frequencies to test, and the
+    # number of calls to average results over
     if(timing_test[0]!=None):
         flag_timing_test = True
         n_freq_lo,n_freq_hi,n_n_freq,n_avg = timing_test
+    # ... if it isn't given, just perform one run
     else:
         flag_timing_test = False
         n_freq_lo = n_freq
@@ -52,14 +57,8 @@ def PhenomPCore(timing_test, n_freq, chi1, chi2, m1, m2, chip, thetaj, alpha0, d
         n_n_freq  = 1
         n_avg     = 0
 
-    # Apply some unit conversions to the input parameters
-    lal_inputs = support.PhenomPCore_inputs(chi1=chi1, chi2=chi2, m1=m1, m2=m2, chip=chip, thetaJ=thetaj, alpha0=alpha0, distance=distance, phic=phic, fref=fref)
-
-    # Generate timing information
+    # Generate timing tests
     if(flag_timing_test):
-
-        # Initialize buffer (saves time with repeated calls)
-        buf = lalsimulation.PhenomPCore_buffer_alloc(n_freq)
 
         # Generate the list of n_freq's that we are going to time
         n_freq_list = [10**(log_n_freq_i) for log_n_freq_i in np.linspace(np.log10(n_freq_lo), np.log10(n_freq_hi), n_n_freq)]
@@ -68,29 +67,14 @@ def PhenomPCore(timing_test, n_freq, chi1, chi2, m1, m2, chip, thetaj, alpha0, d
         n_burn=1
         for i_n_freq,n_freq_i in enumerate(n_freq_list):
 
-            # Generate frequency array for this iteration
-            if(n_freq_i<1):
-                freqs = np.linspace(flow, fhigh, (fhigh - flow) + 1)
-                n_freq_i=len(freqs)
-            else:
-                freqs = np.linspace(flow, fhigh, n_freq_i)
-        
+            # Initialize buffer (saves time for repeated calls)
+            buf = lalsimulation.PhenomPCore_buffer_alloc(n_freq_i)
+
+            # Initialize the model call (apply some unit conversions here)
+            lal_inputs = model.inputs(chi1=chi1, chi2=chi2, m1=m1, m2=m2, chip=chip, thetaJ=thetaj, alpha0=alpha0, distance=distance, phic=phic, fref=fref, freqs=[flow,fhigh,n_freq_i])
+
             # Create a timing callable
-            t = timeit.Timer(lambda: lalsimulation.SimIMRPhenomPFrequencySequence(
-                    freqs,
-                    lal_inputs.chi1,
-                    lal_inputs.chi2,
-                    lal_inputs.chip,
-                    lal_inputs.thetaJ,
-                    lal_inputs.m1,
-                    lal_inputs.m2,
-                    lal_inputs.distance,
-                    lal_inputs.alpha0,
-                    lal_inputs.phic,
-                    lal_inputs.fref,
-                    1,
-                    buf,
-                    None))
+            t = timeit.Timer(lambda: lal_inputs.run(buf,legacy))
 
             # Burn a number of calls (to avoid contamination from Cuda context initialization if buf=None, for example)
             if(n_burn>0):
@@ -100,7 +84,7 @@ def PhenomPCore(timing_test, n_freq, chi1, chi2, m1, m2, chip, thetaj, alpha0, d
                     print("Burning %d calls: %f seconds."%(n_burn,t.timeit(number=n_burn)))
                 n_burn=0
 
-            # Generate timing result
+            # Call the model n_avg times to generate the timing result
             wallclock_i = t.timeit(number=n_avg)
 
             # Print timing result
@@ -114,46 +98,31 @@ def PhenomPCore(timing_test, n_freq, chi1, chi2, m1, m2, chip, thetaj, alpha0, d
                     print("#        04: Avg. time per call [s]")
                 print("%3d %8d %10.3le %10.3le"%(i_n_freq,n_freq_i,wallclock_i,wallclock_i/float(n_avg)))
 
-        # Clean-up
-        lalsimulation.PhenomPCore_buffer_free(buf)
+            # Clean-up buffer
+            lalsimulation.PhenomPCore_buffer_free(buf)
 
     # ... if n_avg<=1, then just run the model and exit.
     else:
         # Don't bother with a buffer (saves no time with just one call)
         buf = None
 
-        # Generate frequency array
-        freqs = np.linspace(flow, fhigh, n_freq)
+        # Initialize model call
+        lal_inputs = model.inputs(chi1=chi1, chi2=chi2, m1=m1, m2=m2, chip=chip, thetaJ=thetaj, alpha0=alpha0, distance=distance, phic=phic, fref=fref, freqs=[flow,fhigh,n_freq])
 
-        # Perform runtime call
-        H=lalsimulation.SimIMRPhenomPFrequencySequence(
-            freqs,
-            lal_inputs.chi1,
-            lal_inputs.chi2,
-            lal_inputs.chip,
-            lal_inputs.thetaJ,
-            lal_inputs.m1,
-            lal_inputs.m2,
-            lal_inputs.distance,
-            lal_inputs.alpha0,
-            lal_inputs.phic,
-            lal_inputs.fref,
-            1,
-            buf,
-            None)
-
-        # Create aliases for the ouput arrays
-        hp_val = H[0].data.data
-        hc_val = H[1].data.data
+        # Perform call
+        lal_outputs = lal_inputs.run(buf=buf,legacy=legacy)
 
         # Write results to stdout &/or binary files
-        support.write_results_PhenomPCore(lal_inputs,freqs,hp_val,hc_val,phic,write2stdout,write2bin,filename_label=None)
+        if(write2bin):
+            model.to_binary(lal_inputs,lal_outputs)
+        if(write2stdout):
+            print(model.to_string(lal_inputs,lal_outputs))
 
         # Check results against standards (if parameters match)
         if(check):
-            support.check_PhenomPCore(lal_inputs,freqs,hp_val,hc_val,phic)
+            model.calc_difference_from_reference(lal_inputs,lal_outputs)
 
 # Permit script execution
 if __name__ == '__main__':
-    status = lal_cuda_params()
+    status = PhenomPCore()
     sys.exit(status)
