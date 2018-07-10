@@ -8,7 +8,7 @@ import lal_cuda
 import lal_cuda.SimIMRPhenomPFrequencySequence as model
 
 # Set this to True if you want to run on a pre-GPU version of lalsimulation
-legacy = True
+legacy = False
 
 def check_SimIMRPhenomPFrequencySequence(use_buffer):
     # Intitialize an empty list of errors
@@ -42,7 +42,7 @@ def check_SimIMRPhenomPFrequencySequence(use_buffer):
 
             # Perform tests
             if(i_check==0):
-                tolerance = 1e-10
+                tolerance = 1e-6
                 if math.fabs(diff_i['hpval_real_diff_max'])>tolerance:
                     errors.append("%s: hpval_real_diff_max=%le > %le"%(os.path.basename(filename_ref_input_i),diff_i['hpval_real_diff_max'],tolerance))
                     flag_check = True

@@ -208,8 +208,8 @@ class inputs(object):
             fref = inputs_np_floats[9]
             # Read integer-type parameters
             inputs_np_ints=np.fromfile(inputs_file,dtype=np.int32,count=len(cls().np_ints()))
-            mode = inputs_np_ints[0]
-            n_freqs = inputs_np_ints[1]
+            mode = int(inputs_np_ints[0])
+            n_freqs = int(inputs_np_ints[1])
             # Read frequency array
             freqs = np.fromfile(inputs_file,dtype=np.float64,count=n_freqs)
         return(cls(chi1=chi1, chi2=chi2, m1=m1, m2=m2, chip=chip, thetaJ=thetaJ, alpha0=alpha0, distance=distance, phic=phic, fref=fref, mode=mode, freqs=freqs, freqs_from_range=False, convert_units=False))
@@ -254,10 +254,11 @@ class inputs(object):
                 self.alpha0,
                 self.phic,
                 self.fref,
-                1,
+                self.mode,
                 None)))
         # ... else, assume that we are working with a version of PhenomP that does have buffer support
         else:
+            print("test: ",self.mode,type(self.mode))
             return(outputs(return_from_SimIMRPhenomPFrequencySequence=lalsimulation.SimIMRPhenomPFrequencySequence(
                 self.freqs,
                 self.chi1,
@@ -270,7 +271,7 @@ class inputs(object):
                 self.alpha0,
                 self.phic,
                 self.fref,
-                1,
+                self.mode,
                 buf,
                 None)))
 
