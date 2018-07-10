@@ -238,10 +238,6 @@ class inputs(object):
         lalsuite we are using does not have PhenomP buffer support.
         """
         if(legacy):
-            print("params: %s"%(self))
-            for freq in self.freqs:
-                print("   ",freq)
-
             return(outputs(return_from_SimIMRPhenomPFrequencySequence=lalsimulation.SimIMRPhenomPFrequencySequence(
                 self.freqs,
                 self.chi1,
@@ -258,7 +254,6 @@ class inputs(object):
                 None)))
         # ... else, assume that we are working with a version of PhenomP that does have buffer support
         else:
-            print("test: ",self.mode,type(self.mode))
             return(outputs(return_from_SimIMRPhenomPFrequencySequence=lalsimulation.SimIMRPhenomPFrequencySequence(
                 self.freqs,
                 self.chi1,
@@ -277,7 +272,7 @@ class inputs(object):
 
     def __str__(self):
         """ Return a string representation of the parameter set """
-        return "chi1=%e chi2=%e m1=%e m2=%e distance=%e thetaJ=%e alpha0=%e chip=%e phic=%e fref=%e mode=%d freqs=[%e...%e], n_freqs=%d"%(self.chi1, self.chi2, self.m1 / lal.lal.MSUN_SI, self.m2 / lal.lal.MSUN_SI, self.distance / (lal.lal.PC_SI*100*1e6), self.thetaJ, self.alpha0, self.chip, self.phic, self.fref, self.mode, self.freqs[0], self.freqs[-1], self.n_freqs)
+        return "chi1=%e chi2=%e m1=%e m2=%e distance=%e thetaJ=%e alpha0=%e chip=%e phic=%e fref=%e mode=%d freqs=[%e...%e]"%(self.chi1, self.chi2, self.m1 / lal.lal.MSUN_SI, self.m2 / lal.lal.MSUN_SI, self.distance / (lal.lal.PC_SI*100*1e6), self.thetaJ, self.alpha0, self.chip, self.phic, self.fref, self.mode, self.freqs[0], self.freqs[-1])
 
     def __eq__(self, other):
         """Test for equivilance of two sets of inputs"""
