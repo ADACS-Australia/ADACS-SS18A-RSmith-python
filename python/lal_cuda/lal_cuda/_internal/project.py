@@ -7,32 +7,38 @@ import yaml
 import git
 
 # Infer the name of this package from the path of __file__
-package_parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..'))
-package_root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
+package_parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+package_root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 package_name = os.path.basename(package_root_dir)
 
 # Make sure that what's in this path takes precidence
 # over an installed version of the project
-sys.path.insert(0,package_parent_dir)
+sys.path.insert(0, package_parent_dir)
 
 # Import needed internal modules
-print("Package name:",package_name,package_name+"._internal.log")
+print("Package name:", package_name, package_name + "._internal.log")
 pkg = __import__(package_name)
 SID = pkg._internal.log
 
 # This hack deals with a python2.7 error with PyYaml, See here:
 # https://stackoverflow.com/questions/27518976/how-can-i-get-pyyaml-safe-load-to-handle-python-unicode-tag
+
+
 def constructor(loader, node):
     return node.value
+
+
 yaml.SafeLoader.add_constructor("tag:yaml.org,2002:python/unicode", constructor)
 
+
 class project:
-    """
-    This class provides a project object, storing project parameters which describe the project.
+    """This class provides a project object, storing project parameters which
+    describe the project.
 
     Inputs: path_call; this needs to be the path to a file or directory living somewhere in the project
     """
-    def __init__(self,path_call):
+
+    def __init__(self, path_call):
         # Store the path_call
         self.path_call = path_call
 
@@ -41,10 +47,14 @@ class project:
         self.filename_auxiliary_filename = '.project_aux.yml'
 
         # Set the filename of the package copy of the project file
-        package_root = pkg.find_in_parent_path(self.path_call,self.filename_project_filename)
-        if(package_root!=None):
-            self.filename_project_file = os.path.join(package_root,self.filename_project_filename)
-            self.filename_auxiliary_file = os.path.abspath(os.path.join(os.path.dirname(self.filename_project_file),self.filename_auxiliary_filename))
+        package_root = pkg.find_in_parent_path(self.path_call, self.filename_project_filename)
+        if(package_root is not None):
+            self.filename_project_file = os.path.join(package_root, self.filename_project_filename)
+            self.filename_auxiliary_file = os.path.abspath(
+                os.path.join(
+                    os.path.dirname(
+                        self.filename_project_file),
+                    self.filename_auxiliary_filename))
         else:
             self.filename_project_file = ''
             self.filename_auxiliary_file = ''
@@ -57,12 +67,13 @@ class project:
                 path_project_root_test = git_repo.git.rev_parse("--show-toplevel")
                 # Check that there is a .project.yml file here.  Otherwise, we may be sitting in the path
                 # of some other repo, and not a project repo
-                if(not os.path.isfile(os.path.join(path_project_root_test,self.filename_project_filename))):
+                if(not os.path.isfile(os.path.join(path_project_root_test, self.filename_project_filename))):
                     raise Exception("No project file found.")
                 else:
                     self.path_project_root = path_project_root_test
-                    self.filename_project_file_source = os.path.normpath(os.path.join(self.path_project_root,self.filename_project_filename))
-        except:
+                    self.filename_project_file_source = os.path.normpath(
+                        os.path.join(self.path_project_root, self.filename_project_filename))
+        except BaseException:
             SID.log.comment("Installed environment will be assumed.")
 
         # Read the project file
@@ -70,38 +81,37 @@ class project:
             self.params = file_in.load()
 
     def add_packages_to_path(self):
-        """
-        Import all the python packages belonging to this project.
-        """
+        """Import all the python packages belonging to this project."""
         dir_file = os.path.abspath(self.path_project_root)
         count = 0
         for (directory, directories, filenames) in os.walk(dir_file):
             for filename in filenames:
                 # Exclude gbpBuild (load it independently) for the case
                 # that we're running this within that package.
-                if(filename=="setup.py" and directory!="gbpBuild"):
+                if(filename == "setup.py" and directory != "gbpBuild"):
                     path_package = os.path.abspath(directory)
-                    sys.path.insert(0,path_package)
-                    count+=1
+                    sys.path.insert(0, path_package)
+                    count += 1
                     break
         return count
 
     def __str__(self):
-        """
-        Convert dictionary of project parameters to a string.
+        """Convert dictionary of project parameters to a string.
+
         :return: string
         """
-        result ="Project information:\n"
-        result+="--------------------\n"
+        result = "Project information:\n"
+        result += "--------------------\n"
         for k, v in sorted(self.params.items()):
-            result+='   ' + k + " = " + str(v) + '\n'
+            result += '   ' + k + " = " + str(v) + '\n'
 
         return result
 
+
 class project_file():
-    def __init__(self,project):
+    def __init__(self, project):
         # Keep a record of inputs
-        self.project=project
+        self.project = project
 
         # File pointer
         self.fp_prj = None
@@ -119,18 +129,18 @@ class project_file():
             #    of the package, and we need to work with an up-to-date copy instead.
             SID.log.open("Validating package's project files...")
             try:
-                flag_update=False
+                flag_update = False
                 if(not os.path.isfile(self.project.filename_project_file)):
-                    flag_update=True
-                elif(not filecmp.cmp(self.project.filename_project_file_source,self.project.filename_project_file)):
-                    flag_update=True
+                    flag_update = True
+                elif(not filecmp.cmp(self.project.filename_project_file_source, self.project.filename_project_file)):
+                    flag_update = True
                 if(flag_update):
                     # Make a copy of the project file
-                    shutil.copy2(self.project.filename_project_file_source,self.project.filename_project_file)
+                    shutil.copy2(self.project.filename_project_file_source, self.project.filename_project_file)
                     SID.log.close("Updated.")
                 else:
                     SID.log.close("Up-to-date.")
-            except:
+            except BaseException:
                 SID.log.error("Could not update package's project file.")
 
             # Create a dictionary of a bunch of auxiliary project information
@@ -138,16 +148,18 @@ class project_file():
             # Set some project directories
             aux_params = []
             aux_params.append({'dir_docs': os.path.abspath(os.path.join(self.project.path_project_root, "docs"))})
-            aux_params.append({'dir_docs_api_src': os.path.abspath(os.path.join(self.project.path_project_root, "docs/src"))})
-            aux_params.append({'dir_docs_build': os.path.abspath(os.path.join(self.project.path_project_root, "docs/_build"))})
+            aux_params.append({'dir_docs_api_src': os.path.abspath(
+                os.path.join(self.project.path_project_root, "docs/src"))})
+            aux_params.append({'dir_docs_build': os.path.abspath(
+                os.path.join(self.project.path_project_root, "docs/_build"))})
             aux_params.append({'dir_python': os.path.abspath(os.path.join(self.project.path_project_root, "python"))})
 
             # Get a list of python packages
-            python_path      = aux_params[-1]['dir_python']
+            python_path = aux_params[-1]['dir_python']
             python_path_dirs = os.listdir(python_path)
-            python_pkgs      = []
+            python_pkgs = []
             for python_path_dir_i in python_path_dirs:
-                if(python_path_dir_i!='build' and python_path_dir_i!='_build'):
+                if(python_path_dir_i != 'build' and python_path_dir_i != '_build'):
                     python_pkgs.append(python_path_dir_i)
             aux_params.append({'python_packages': python_pkgs})
 
@@ -167,34 +179,35 @@ class project_file():
             try:
                 with open("%s/.version" % (self.project.path_project_root), "r") as fp_in:
                     version_string_source = str(fp_in.readline()).strip('\n')
-                    aux_params.append({'version': version_string_source}) 
+                    aux_params.append({'version': version_string_source})
             except BaseException:
                 SID.log.comment("Project '.version' file not found.  Setting version='unset'")
                 aux_params.append({'version': 'unset'})
 
-            ## TODO: Need to split version from release.
+            # TODO: Need to split version from release.
             aux_params.append({'release': version_string_source})
 
             # Write auxiliary parameters file
             with open(self.project.filename_auxiliary_file, 'w') as outfile:
-                yaml.dump(aux_params, outfile, default_flow_style=False, encoding='utf-8') # UTF-8 to ensure compatability between py27 and py3X
+                # UTF-8 to ensure compatability between py27 and py3X
+                yaml.dump(aux_params, outfile, default_flow_style=False, encoding='utf-8')
 
     def open(self):
         try:
-            self.fp_prj=open(self.project.filename_project_file)
-            self.fp_aux=open(self.project.filename_auxiliary_file)
-        except:
-            SID.log.error("Could not open project file {%s}."%(self.project.filename))
+            self.fp_prj = open(self.project.filename_project_file)
+            self.fp_aux = open(self.project.filename_auxiliary_file)
+        except BaseException:
+            SID.log.error("Could not open project file {%s}." % (self.project.filename))
             raise
 
     def close(self):
         try:
-            if(self.fp_prj!=None):
+            if(self.fp_prj is not None):
                 self.fp_prj.close()
-            if(self.fp_aux!=None):
+            if(self.fp_aux is not None):
                 self.fp_aux.close()
-        except:
-            SID.log.error("Could not close project file {%s}."%(self.project.filename))
+        except BaseException:
+            SID.log.error("Could not close project file {%s}." % (self.project.filename))
             raise
 
     def load(self):
@@ -203,9 +216,9 @@ class project_file():
             params_list.append(yaml.safe_load(self.fp_prj))
             params_list.append(yaml.safe_load(self.fp_aux))
             # Add a few extra things
-            params_list.append([{'path_project_root':self.project.path_project_root}])
-        except:
-            SID.log.error("Could not load project file {%s}."%(self.project.filename))
+            params_list.append([{'path_project_root': self.project.path_project_root}])
+        except BaseException:
+            SID.log.error("Could not load project file {%s}." % (self.project.filename))
             raise
         finally:
             result = dict()
@@ -213,10 +226,11 @@ class project_file():
                 result.update({k: v for d in params for k, v in d.items()})
             return result
 
-class open_project_file:
-    """ Open project file."""
 
-    def __init__(self,project):
+class open_project_file:
+    """Open project file."""
+
+    def __init__(self, project):
         self.project = project
 
     def __enter__(self):
@@ -225,13 +239,13 @@ class open_project_file:
         try:
             self.file_in = project_file(self.project)
             self.file_in.open()
-        except:
+        except BaseException:
             SID.log.error("Could not open project file.")
             raise
         finally:
             SID.log.close("Done.")
             return self.file_in
 
-    def __exit__(self,*exc):
+    def __exit__(self, *exc):
         self.file_in.close()
         return False
