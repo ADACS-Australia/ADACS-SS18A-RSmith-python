@@ -36,11 +36,11 @@ this_project = prj.project(os.path.abspath(__file__))
 # Add all python packages from this project to the path
 this_project.add_packages_to_path()
 
-# Add it to the project path
+# Add Breath build directory to path
 breathe_directory = "%s/breathe/" % (this_project.params['dir_docs_build'])
 sys.path.append(breathe_directory)
 
-# If the is a Readthedocs build, then we need to run Doxygen
+# If this is a Readthedocs build, then we need to run Doxygen
 if (os.environ.get('READTHEDOCS', None) == 'True'):
     path_doxyfile=os.path.join(this_project.params['dir_docs'],"Doxyfile")
     dir_doxy_xml=os.path.join(this_project.params['dir_docs'],"xml")
