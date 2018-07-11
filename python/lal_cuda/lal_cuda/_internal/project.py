@@ -1,17 +1,24 @@
-import yaml
 import shutil
-import git
 import filecmp
-
 import os
 import sys
 
+import yaml
+import git
+
+# Infer the name of this package from the path of __file__
+package_parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..'))
+package_root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
+package_name = os.path.basename(package_root_dir)
+
 # Make sure that what's in this path takes precidence
 # over an installed version of the project
-sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+sys.path.insert(0,package_parent_dir)
 
-import gbpBuild as bld
-import gbpBuild.log as SID
+# Import needed internal modules
+print("Package name:",package_name,package_name+"._internal.log")
+pkg = __import__(package_name)
+SID = pkg._internal.log
 
 # This hack deals with a python2.7 error with PyYaml, See here:
 # https://stackoverflow.com/questions/27518976/how-can-i-get-pyyaml-safe-load-to-handle-python-unicode-tag
@@ -34,7 +41,7 @@ class project:
         self.filename_auxiliary_filename = '.project_aux.yml'
 
         # Set the filename of the package copy of the project file
-        package_root = bld.find_in_parent_path(self.path_call,self.filename_project_filename)
+        package_root = pkg.find_in_parent_path(self.path_call,self.filename_project_filename)
         if(package_root!=None):
             self.filename_project_file = os.path.join(package_root,self.filename_project_filename)
             self.filename_auxiliary_file = os.path.abspath(os.path.join(os.path.dirname(self.filename_project_file),self.filename_auxiliary_filename))

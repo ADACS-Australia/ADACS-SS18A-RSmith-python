@@ -1,16 +1,22 @@
-import yaml
 import shutil
 import filecmp
-
 import os
 import sys
 
+import yaml
+
+# Infer the name of this package from the path of __file__
+package_parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..'))
+package_root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
+package_name = os.path.basename(package_root_dir)
+
 # Make sure that what's in this path takes precidence
 # over an installed version of the project
-sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+sys.path.insert(0,package_parent_dir)
 
-import gbpBuild as bld
-import gbpBuild.log as SID
+# Import needed internal modules
+pkg = __import__(package_name)
+SID = pkg._internal.log
 
 class package:
     """
@@ -21,7 +27,7 @@ class package:
     def __init__(self,path_call):
 
         # Scan upwards from the given path until 'setup.py' is found.  That will be the package parent directory.
-        self.path_package_parent = bld.find_in_parent_path(path_call,".package.yml")
+        self.path_package_parent = pkg.find_in_parent_path(path_call,".package.yml")
 
         # Assume that the tail of the root path is the package name
         self.package_name = os.path.basename(self.path_package_parent)

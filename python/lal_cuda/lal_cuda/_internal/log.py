@@ -1,10 +1,3 @@
-"""Code for generating log messages
-
-Developed with the following library versions:
-
-    python:        3.5.2
-"""
-
 # For legacy-Python compatability
 from __future__ import print_function
 
