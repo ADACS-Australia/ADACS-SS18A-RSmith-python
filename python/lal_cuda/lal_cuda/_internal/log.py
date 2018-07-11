@@ -3,6 +3,8 @@ from __future__ import print_function
 
 import sys
 import time
+import types
+import datetime
 
 
 class log_stream(object):
@@ -27,12 +29,12 @@ class log_stream(object):
         one."""
         if(self.hanging):
             print ('', file=self.fp)
-            return True
-        else:
-            return False
+            self.hanging = False
 
-    def indent(self):
+    def indent(self, overwrite=False):
         """Compute the next indent."""
+        if(overwrite):
+            print ('\r', end='', file=self.fp)
         print (self.indent_size * self.n_indent * ' ', end='', file=self.fp)
         self.fp.flush()
 
@@ -52,13 +54,17 @@ class log_stream(object):
         self.fp.flush()
         self.hanging = True
 
-    def comment(self, msg):
+    def comment(self, msg, overwrite=False, hang=False):
         """Add a one-line comment to the log."""
-        self.unhang()
-        self.indent()
-        print (msg, end='', file=self.fp)
+        if(not overwrite):
+            self.unhang()
+        self.indent(overwrite)
+        if(hang):
+            print (msg, end='', file=self.fp)
+        else:
+            print (msg, end='\n', file=self.fp)
         self.fp.flush()
-        self.hanging = True
+        self.hanging = hang
 
     def raw(self, msg):
         """Print raw, unformatted text to the log."""
@@ -75,16 +81,47 @@ class log_stream(object):
         """
         self.n_indent -= 1
         if(msg is not None):
-            if(not self.hanging):
-                self.indent()
             if(time_elapsed):
                 dt = time.time() - self.t_last
                 msg_time = " (%d seconds)" % (dt)
             else:
                 msg_time = ''
+            if(not self.hanging):
+                self.indent()
             print (msg + msg_time, end='\n', file=self.fp)
             self.fp.flush()
             self.hanging = False
+
+    def progress_bar(self, gen, count, *args, **kwargs):
+        """Display a progress bar for a generator."""
+
+        # Render counter
+        width = 30
+        msg_len_last = 0
+        start_time = time.time()
+        self.comment("[%s] Remaining:" % (' ' * width), hang=True)
+        for iteration, result in enumerate(gen(*args, **kwargs)):
+            fraction_complete = float(iteration + 1) / float(count)
+            ticks = int(fraction_complete * float(width + 1))
+            secs_elapsed = time.time() - start_time
+            secs_estimate = int(secs_elapsed / fraction_complete)
+            secs_remaining = secs_estimate - secs_elapsed
+            if(secs_remaining > 0):
+                msg = "[%s%s] Remaining: %s" % ('#' * ticks, ' ' * (width - ticks),
+                                                str(datetime.timedelta(seconds=secs_remaining)).split('.')[0])
+                msg_len = len(msg)
+
+                # Make sure to blank-out any old underlying text
+                if(msg_len < msg_len_last):
+                    msg += ' ' * (msg_len_last - msg_len)
+                msg_len_last = msg_len
+                self.comment(msg, overwrite=True, hang=True)
+        msg = "[%s%s] Time elapsed: %s" % ('#' * ticks, ' ' * (width - ticks),
+                                           str(datetime.timedelta(seconds=secs_elapsed)).split('.')[0])
+        msg_len = len(msg)
+        if(msg_len < msg_len_last):
+            msg += ' ' * (msg_len_last - msg_len)
+        self.comment(msg, overwrite=True)
 
     def error(self, err_msg, code=None):
         """Emit an error message and exit."""
