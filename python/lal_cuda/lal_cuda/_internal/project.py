@@ -8,10 +8,10 @@ import sys
 
 # Make sure that what's in this path takes precidence
 # over an installed version of the project
-sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..')))
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 
-import lal_cuda
-import lal_cuda._internal.log as SID
+import gbpBuild as bld
+import gbpBuild.log as SID
 
 # This hack deals with a python2.7 error with PyYaml, See here:
 # https://stackoverflow.com/questions/27518976/how-can-i-get-pyyaml-safe-load-to-handle-python-unicode-tag
@@ -34,7 +34,7 @@ class project:
         self.filename_auxiliary_filename = '.project_aux.yml'
 
         # Set the filename of the package copy of the project file
-        package_root = lal_cuda.find_in_parent_path(self.path_call,self.filename_project_filename)
+        package_root = bld.find_in_parent_path(self.path_call,self.filename_project_filename)
         if(package_root!=None):
             self.filename_project_file = os.path.join(package_root,self.filename_project_filename)
             self.filename_auxiliary_file = os.path.abspath(os.path.join(os.path.dirname(self.filename_project_file),self.filename_auxiliary_filename))
@@ -134,7 +134,15 @@ class project_file():
             aux_params.append({'dir_docs_api_src': os.path.abspath(os.path.join(self.project.path_project_root, "docs/src"))})
             aux_params.append({'dir_docs_build': os.path.abspath(os.path.join(self.project.path_project_root, "docs/_build"))})
             aux_params.append({'dir_python': os.path.abspath(os.path.join(self.project.path_project_root, "python"))})
-            aux_params.append({'dir_python_pkg': os.path.abspath(os.path.join(self.project.path_project_root, 'python/gbpBuild/'))})
+
+            # Get a list of python packages
+            python_path      = aux_params[-1]['dir_python']
+            python_path_dirs = os.listdir(python_path)
+            python_pkgs      = []
+            for python_path_dir_i in python_path_dirs:
+                if(python_path_dir_i!='build' and python_path_dir_i!='_build'):
+                    python_pkgs.append(python_path_dir_i)
+            aux_params.append({'python_packages': python_pkgs})
 
             # Check if this is a C-project (the appropriate makefile will be present if so)
             if(os.path.isfile(os.path.join(self.project.path_project_root, ".Makefile-c"))):

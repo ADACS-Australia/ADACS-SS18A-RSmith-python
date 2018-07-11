@@ -7,10 +7,10 @@ import sys
 
 # Make sure that what's in this path takes precidence
 # over an installed version of the project
-sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..')))
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 
-import lal_cuda
-import lal_cuda._internal.log as SID
+import gbpBuild as bld
+import gbpBuild.log as SID
 
 class package:
     """
@@ -21,7 +21,7 @@ class package:
     def __init__(self,path_call):
 
         # Scan upwards from the given path until 'setup.py' is found.  That will be the package parent directory.
-        self.path_package_parent = lal_cuda.find_in_parent_path(path_call,".package.yml")
+        self.path_package_parent = bld.find_in_parent_path(path_call,".package.yml")
 
         # Assume that the tail of the root path is the package name
         self.package_name = os.path.basename(self.path_package_parent)
@@ -41,7 +41,6 @@ class package:
         Generate a list of non-code files to be included in the package.
     
         By default, all files in the 'data' directory in the package root will be added.
-        Paths need to be absolute for 'include_package_data' in setup.py to work.
         :return: a list of absolute paths.
         """
         paths = []
@@ -53,11 +52,10 @@ class package:
         paths.append(os.path.abspath(os.path.join(self.path_package_parent,".package.yml")))
 
         # Add the data directory
-        for (path, directories, filenames) in os.walk(os.path.join(self.path_package_parent,"data"),followlinks=True):
+        for (path, directories, filenames) in os.walk(os.path.join(self.path_package_root,"data"),followlinks=True):
             if(path!="__pycache__"):
                 for filename in filenames:
                     paths.append(os.path.join('..', path, filename))
-
         return paths
 
     def collect_package_scripts(self):
