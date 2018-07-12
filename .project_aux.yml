@@ -1,9 +1,9 @@
-- dir_docs: /Users/gpoole/my_code/ADACS-SS18A-RSmith-python/docs
-- dir_docs_api_src: /Users/gpoole/my_code/ADACS-SS18A-RSmith-python/docs/src
-- dir_docs_build: /Users/gpoole/my_code/ADACS-SS18A-RSmith-python/docs/_build
-- dir_python: /Users/gpoole/my_code/ADACS-SS18A-RSmith-python/python
+- dir_docs: !!python/unicode '/fred/oz007/ADACS/rsmith/lal_cuda/docs'
+- dir_docs_api_src: !!python/unicode '/fred/oz007/ADACS/rsmith/lal_cuda/docs/src'
+- dir_docs_build: !!python/unicode '/fred/oz007/ADACS/rsmith/lal_cuda/docs/_build'
+- dir_python: !!python/unicode '/fred/oz007/ADACS/rsmith/lal_cuda/python'
 - python_packages:
-  - lal_cuda
+  - !!python/unicode 'lal_cuda'
 - is_C_project: false
 - is_Python_project: true
 - version: 0.0.1

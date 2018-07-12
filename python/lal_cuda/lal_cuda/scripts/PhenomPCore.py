@@ -7,7 +7,7 @@ import timeit
 import lal
 import lalsimulation
 import lal_cuda
-import lal_cuda.SimIMRPhenomPFrequencySequence as model
+import lal_cuda.SimIMRPhenomP as model
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 

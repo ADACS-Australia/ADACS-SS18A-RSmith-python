@@ -9,7 +9,10 @@ sys.path.insert(0, os.path.abspath(__file__))
 
 # Infer the name of this package from the path of __file__
 package_root_dir = os.path.abspath(os.path.dirname(__file__))
-package_name = os.path.basename(package_root_dir)
+
+# TODO: Find a way to infer this which works with tox (ie. without using
+# the path, which gets scramled during a virtual env install)
+package_name = 'lal_cuda'
 
 # Make sure that what's in this path takes precidence
 # over an installed version of the project

@@ -5,7 +5,7 @@ import os
 
 import lalsimulation
 import lal_cuda
-import lal_cuda.SimIMRPhenomPFrequencySequence as model
+import lal_cuda.SimIMRPhenomP as model
 
 # Set this to True if you want to run on a pre-GPU version of lalsimulation
 legacy = False

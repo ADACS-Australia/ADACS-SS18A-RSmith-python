@@ -10,4 +10,4 @@ Modules
 
 .. toctree::
 
-   lal_cuda.SimIMRPhenomPFrequencySequence
+   lal_cuda.SimIMRPhenomP
