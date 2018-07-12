@@ -153,7 +153,7 @@ def PhenomPCore_mcmc(filename_plot, filename_out, n_walkers, n_steps, freqs_rang
 
         # Generate plots
         lal_cuda.log.open("Generating plot...")
-        fig = c.plotter.plot(filename="%s.pdf" % (filename_base))
+        fig = c.plotter.plot(filename="%s.pdf" % (filename_base), figsize="column")
         lal_cuda.log.close("Done.", time_elapsed=True)
 
         lal_cuda.log.close("Done.", time_elapsed=True)

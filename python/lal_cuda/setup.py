@@ -13,12 +13,12 @@ package_name = os.path.basename(package_root_dir)
 
 # Make sure that what's in this path takes precidence
 # over an installed version of the project
-sys.path.insert(0, os.path.join(package_root_dir,package_name))
+sys.path.insert(0, os.path.join(package_root_dir, package_name))
 
 # Import needed internal modules
 pkg = importlib.import_module(package_name)
-_prj = importlib.import_module(package_name+'._internal.project')
-_pkg = importlib.import_module(package_name+'._internal.package')
+_prj = importlib.import_module(package_name + '._internal.project')
+_pkg = importlib.import_module(package_name + '._internal.package')
 
 # Fetch all the meta data for the project & package
 this_project = _prj.project(os.path.abspath(__file__))
