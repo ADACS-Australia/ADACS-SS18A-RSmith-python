@@ -96,14 +96,17 @@ def logprob(mc, data, psd, freqs, buf, legacy):
         return -np.inf
 
 
-@click.command(context_settings=CONTEXT_SETTINGS)
-@click.option('--filename_plot', type=str, default=None)
-@click.option('--filename_out', type=str, default="posterior_samples.p")
-@click.option('--n_walkers', type=int, default=100, show_default=True)
-@click.option('--n_steps', type=int, default=2000, show_default=True)
-@click.option('--freqs_range', type=(float, float), default=(0., 1e10))
-@click.option('--use_buffer/--no-use_buffer', default=True, show_default=True)
-@click.option('--legacy/--no-legacy', default=False, show_default=True)
+@click.command(click.Context(click.Command, help_option_names=['-h', '--help']))
+@click.option('--filename_plot', type=str, default=None, help='Specify a chain file to plot.')
+@click.option('--filename_out', type=str, default="posterior_samples.p", help='Specify a file name for chain output.')
+@click.option('--n_walkers', type=int, default=100, show_default=True,
+              help='Specify the number of emcee walkers to use.')
+@click.option('--n_steps', type=int, default=2000, show_default=True, help='Specify the number of emcee steps to take')
+@click.option('--freqs_range', type=(float, float), default=(0., 1e10),
+              help='Specify the frequency range of the fit as MIN MAX.')
+@click.option('--use_buffer/--no-use_buffer', default=True, show_default=True, help='Use a buffer for accelleration.')
+@click.option('--legacy/--no-legacy', default=False, show_default=True,
+              help='Specify this option if a legacy version of LALSuite (without buffer support) is being used.')
 @click.argument(
     'data_files',
     nargs=2,
@@ -115,7 +118,19 @@ def logprob(mc, data, psd, freqs, buf, legacy):
         lal_cuda.full_path_datafile(
             lal_cuda.full_path_datafile("H1-PSD.dat"))])
 def PhenomPCore_mcmc(filename_plot, filename_out, n_walkers, n_steps, freqs_range, use_buffer, legacy, data_files):
+    """This script either generates (defualt) or plots (with the
+    --filename_plot option) an MCMC chain describing the posterior probability
+    of a model (gernerated from LALSuite; see below) fit to a two-file dataset
+    (given by the optional positional arguments; a default dataset stored with
+    the package is used by default, if no positional arguments are given).
 
+    The model is generated with the call:
+
+    lalsimulation.SimIMRPhenomPFrequencySequence(...)
+
+    which calls the C-function XLALSimIMRPhenomPFrequencySequence.  That function
+    then calls PhenomPCore which in-turn calls PhenomPCoreOneFrequency.
+    """
     if(filename_plot):
         SID.log.open("Generating chain plots for {%s}..." % (filename_plot))
 

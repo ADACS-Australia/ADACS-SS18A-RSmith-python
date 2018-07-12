@@ -16,18 +16,16 @@ package_name = os.path.basename(package_root_dir)
 sys.path.insert(0, package_parent_dir)
 
 # Import needed internal modules
-print("Package name:", package_name, package_name + "._internal.log")
 pkg = __import__(package_name)
 SID = pkg._internal.log
-
-# This hack deals with a python2.7 error with PyYaml, See here:
-# https://stackoverflow.com/questions/27518976/how-can-i-get-pyyaml-safe-load-to-handle-python-unicode-tag
 
 
 def constructor(loader, node):
     return node.value
 
 
+# This hack deals with a python2.7 error with PyYaml, See here:
+# https://stackoverflow.com/questions/27518976/how-can-i-get-pyyaml-safe-load-to-handle-python-unicode-tag
 yaml.SafeLoader.add_constructor("tag:yaml.org,2002:python/unicode", constructor)
 
 

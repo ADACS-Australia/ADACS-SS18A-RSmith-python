@@ -8,31 +8,55 @@ import lal
 import lalsimulation
 import lal_cuda.SimIMRPhenomPFrequencySequence as model
 
-CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
-
-@click.command(context_settings=CONTEXT_SETTINGS)
-@click.option('--timing', type=(float, float, int, int), default=(None, None, None, None))
-@click.option('--n_freq', type=int, default=81, show_default=True)
-@click.option('--chi1', type=float, default=0.1, show_default=True)
-@click.option('--chi2', type=float, default=0.2, show_default=True)
-@click.option('--m1', type=float, default=30, show_default=True)
-@click.option('--m2', type=float, default=30, show_default=True)
-@click.option('--chip', type=float, default=0.34, show_default=True)
-@click.option('--thetaJ', type=float, default=1.1, show_default=True)
-@click.option('--alpha0', type=float, default=1.5, show_default=True)
-@click.option('--distance', type=float, default=1000, show_default=True)
-@click.option('--phic', type=float, default=np.pi * 0.4, show_default=True)
-@click.option('--fref', type=float, default=30, show_default=True)
-@click.option('--flow', type=float, default=20, show_default=True)
-@click.option('--fhigh', type=float, default=100, show_default=True)
-@click.option('--write2stdout/--no-write2stdout', default=True, show_default=True)
-@click.option('--write2bin/--no-write2bin', default=False, show_default=True)
-@click.option('--check/--no-check', default=False, show_default=True)
-@click.option('--legacy/--no-legacy', default=False, show_default=True)
+@click.command(click.Context(click.Command, help_option_names=['-h', '--help']))
+@click.option('--flow', type=float, default=20, show_default=True, help='Minimum frequency')
+@click.option('--fhigh', type=float, default=100, show_default=True, help='Maximum frequency')
+@click.option('--n_freq', type=int, default=81, show_default=True, help='Number of frequencies')
+@click.option('--write2stdout/--no-write2stdout', default=True, show_default=True, help='Write to standard out?')
+@click.option('--write2bin/--no-write2bin', default=False, show_default=True, help='Write to binary files?')
+@click.option('--check/--no-check', default=False, show_default=True,
+              help='Check result against stored results for standard parameter sets (if a match is detected).')
+@click.option(
+    '--timing',
+    type=(
+        float,
+        float,
+        int,
+        int),
+    default=(
+        None,
+        None,
+        None,
+        None),
+    help='Run in timing mode (all previous parameters are ignored).  Specify run as FREQ_MIN FREQ_MAX N_FREQ N_AVG.')
+@click.option('--chi1', type=float, default=0.1, show_default=True, help='Model parameter: chi1')
+@click.option('--chi2', type=float, default=0.2, show_default=True, help='Model parameter: chi2')
+@click.option('--m1', type=float, default=30, show_default=True, help='Model parameter: m1')
+@click.option('--m2', type=float, default=30, show_default=True, help='Model parameter: m2')
+@click.option('--chip', type=float, default=0.34, show_default=True, help='Model parameter: chip')
+@click.option('--thetaJ', type=float, default=1.1, show_default=True, help='Model parameter: thetaJ')
+@click.option('--alpha0', type=float, default=1.5, show_default=True, help='Model parameter: alpha0')
+@click.option('--distance', type=float, default=1000, show_default=True,
+              help='Model parameter: distance')
+@click.option(
+    '--phic',
+    type=float,
+    default=np.pi * 0.4,
+    show_default=True,
+    help='Model parameter: phic')
+@click.option('--fref', type=float, default=30, show_default=True, help='Model parameter: fref')
+@click.option('--use_buffer/--no-use_buffer', default=True, show_default=True, help='Use a buffer for accelleration.')
+@click.option('--legacy/--no-legacy', default=False, show_default=True,
+              help='Specify this option if a legacy version of LALSuite (without buffer support) is being used.')
 def PhenomPCore(
-        timing,
+        flow,
+        fhigh,
         n_freq,
+        write2stdout,
+        write2bin,
+        check,
+        timing,
         chi1,
         chi2,
         m1,
@@ -43,11 +67,7 @@ def PhenomPCore(
         distance,
         phic,
         fref,
-        flow,
-        fhigh,
-        write2stdout,
-        write2bin,
-        check,
+        use_buffer,
         legacy):
     """This script calls a higher-level function in LALSuite.  The output is
     two binary arrays corresponding to the two outputs hp_val, hc_val from
@@ -89,7 +109,10 @@ def PhenomPCore(
         for i_n_freq, n_freq_i in enumerate(n_freq_list):
 
             # Initialize buffer (saves time for repeated calls)
-            buf = lalsimulation.PhenomPCore_buffer_alloc(int(n_freq_i))
+            if(use_buffer):
+                buf = lalsimulation.PhenomPCore_buffer_alloc(int(n_freq_i))
+            else:
+                buf = None
 
             # Initialize the model call (apply some unit conversions here)
             lal_inputs = model.inputs(
@@ -114,9 +137,9 @@ def PhenomPCore(
             # Burn a number of calls (to avoid contamination from Cuda context initialization if buf=None, for example)
             if(n_burn > 0):
                 if(n_burn == 1):
-                    print("Burning a call: %f seconds." % (t.timeit(number=n_burn)))
+                    SID.log.comment("Burning a call: %f seconds." % (t.timeit(number=n_burn)))
                 else:
-                    print("Burning %d calls: %f seconds." % (n_burn, t.timeit(number=n_burn)))
+                    SID.log.comment("Burning %d calls: %f seconds." % (n_burn, t.timeit(number=n_burn)))
                 n_burn = 0
 
             # Call the model n_avg times to generate the timing result
@@ -124,7 +147,7 @@ def PhenomPCore(
 
             # Print timing result
             if(len(n_freq_list) == 1):
-                print("Average timing of %d calls: %.5f seconds." % (n_avg, wallclock_i / float(n_avg)))
+                SID.log.comment("Average timing of %d calls: %.5f seconds." % (n_avg, wallclock_i / float(n_avg)))
             else:
                 if(i_n_freq == 0):
                     print("# Column 01: Iteration")
