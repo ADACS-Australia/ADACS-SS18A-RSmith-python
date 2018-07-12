@@ -2,6 +2,7 @@ import shutil
 import filecmp
 import os
 import sys
+import importlib
 
 import yaml
 import git
@@ -16,7 +17,7 @@ package_name = os.path.basename(package_root_dir)
 sys.path.insert(0, package_parent_dir)
 
 # Import needed internal modules
-pkg = __import__(package_name)
+pkg = importlib.import_module(package_name)
 
 
 def constructor(loader, node):

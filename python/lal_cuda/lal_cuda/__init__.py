@@ -1,13 +1,24 @@
 import os
 import sys
+import importlib
 
 # Make sure that what's in this path takes precidence
 # over an installed version of the project
 sys.path.insert(0, os.path.join(os.path.abspath(__file__), '..'))
 
-# Initialize the log stream
-import _internal.log as logging
-log = logging.log_stream()
+# Infer the name of this package from the path of __file__
+package_parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+package_root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+package_name = os.path.basename(package_root_dir)
+
+# Make sure that what's in this path takes precidence
+# over an installed version of the project
+sys.path.insert(0, package_parent_dir)
+
+# Import needed internal modules
+_log = importlib.import_module(package_name+'._internal.log')
+log = _log.log_stream()
+
 
 _PACKAGE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 

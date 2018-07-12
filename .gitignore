@@ -30,8 +30,9 @@ build-*
 build
 _build
 
-# Scratch directory used for testing
+# Scratch directories/files
 .tests
+.project_aux.yml
 
 #Miscillaneous
 .install*
