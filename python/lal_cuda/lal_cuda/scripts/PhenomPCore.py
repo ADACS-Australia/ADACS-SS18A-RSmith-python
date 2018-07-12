@@ -8,8 +8,8 @@ import lal
 import lalsimulation
 import lal_cuda.SimIMRPhenomPFrequencySequence as model
 
-
-@click.command(click.Context(click.Command, help_option_names=['-h', '--help']))
+CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+@click.command(context_settings=CONTEXT_SETTINGS)
 @click.option('--flow', type=float, default=20, show_default=True, help='Minimum frequency')
 @click.option('--fhigh', type=float, default=100, show_default=True, help='Maximum frequency')
 @click.option('--n_freq', type=int, default=81, show_default=True, help='Number of frequencies')

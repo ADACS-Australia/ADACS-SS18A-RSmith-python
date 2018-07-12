@@ -59,7 +59,7 @@ class package:
         paths.append(os.path.abspath(os.path.join(self.path_package_parent, ".package.yml")))
 
         # Add the data directory
-        for (path, directories, filenames) in os.walk(os.path.join(self.path_package_root, "data"), followlinks=True):
+        for (path, directories, filenames) in os.walk(os.path.join(self.path_package_parent, "data"), followlinks=True):
             if(path != "__pycache__"):
                 for filename in filenames:
                     paths.append(os.path.join('..', path, filename))

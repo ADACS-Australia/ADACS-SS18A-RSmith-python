@@ -39,15 +39,12 @@ click == 6.7
 emcee == 2.2.1
 
 # python/lal_cuda/lal_cuda/scripts/PhenomPCore_mcmc.py: 2
-matplotlib == 2.2.0
+matplotlib == 2.0.2
 
 # python/lal_cuda/lal_cuda/SimIMRPhenomPFrequencySequence.py: 2
 # python/lal_cuda/lal_cuda/scripts/PhenomPCore.py: 2
 # python/lal_cuda/lal_cuda/scripts/PhenomPCore_mcmc.py: 1
 numpy == 1.14.3
-
-# python/lal_cuda/lal_cuda/tests/test_SimIMRPhenomPFrequencySequence.py: 2
-pytest == 3.6.3
 
 # .src/gbpbuild/docs/conf.py: 27
 # .src/gbpbuild/python/gbpBuild/gbpBuild/data/support/docs/conf.py: 27
