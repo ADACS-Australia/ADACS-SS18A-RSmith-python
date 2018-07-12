@@ -12,7 +12,7 @@ class log_stream(object):
 
     def __init__(self):
         self.t_start = time.time()
-        self.t_last = self.t_start
+        self.t_last = []
         self.indent_size = 3
         self.n_indent = 0
         self.hanging = False
@@ -46,7 +46,7 @@ class log_stream(object):
         self.fp.flush()
         self.hanging = True
         self.n_indent += 1
-        self.t_last = time.time()
+        self.t_last.append(time.time())
 
     def append(self, msg):
         """Add to the end of the current line in the log."""
@@ -80,9 +80,19 @@ class log_stream(object):
         time_elapsed=True
         """
         self.n_indent -= 1
+
+        # Sanity checks
+        if(self.n_indent < 0):
+            self.error("Invalid log closure.  n_indent has dropped below zero.")
+        if(len(self.t_last) == 0):
+            self.error("Invalid log closure.  t_last entries have been exhausted.")
+
+        # This must be called every time to keep number of entries correct
+        dt = time.time() - self.t_last.pop()
+
+        # Generate message
         if(msg is not None):
             if(time_elapsed):
-                dt = time.time() - self.t_last
                 msg_time = " (%d seconds)" % (dt)
             else:
                 msg_time = ''
