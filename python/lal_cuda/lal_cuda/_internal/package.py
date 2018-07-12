@@ -16,7 +16,6 @@ sys.path.insert(0, package_parent_dir)
 
 # Import needed internal modules
 pkg = __import__(package_name)
-SID = pkg._internal.log
 
 
 class package:
@@ -119,21 +118,21 @@ class package_file():
         try:
             self.fp = open(self.filename_package_file)
         except BaseException:
-            SID.log.error("Could not open package file {%s}." % (self.filename))
+            pkg.log.error("Could not open package file {%s}." % (self.filename))
             raise
 
     def close(self):
         try:
             self.fp.close()
         except BaseException:
-            SID.log.error("Could not close package file {%s}." % (self.filename))
+            pkg.log.error("Could not close package file {%s}." % (self.filename))
             raise
 
     def load(self):
         try:
             params_list = yaml.load(self.fp)
         except BaseException:
-            SID.log.error("Could not load package file {%s}." % (self.filename))
+            pkg.log.error("Could not load package file {%s}." % (self.filename))
             raise
         finally:
             return {k: v for d in params_list for k, v in d.items()}
@@ -147,15 +146,15 @@ class open_package_file:
 
     def __enter__(self):
         # Open the package's copy of the file
-        SID.log.open("Opening package...")
+        pkg.log.open("Opening package...")
         try:
             self.file_in = package_file(self.path_call)
             self.file_in.open()
         except BaseException:
-            SID.log.error("Could not open package file.")
+            pkg.log.error("Could not open package file.")
             raise
         finally:
-            SID.log.close("Done.")
+            pkg.log.close("Done.")
             return self.file_in
 
     def __exit__(self, *exc):

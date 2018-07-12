@@ -5,7 +5,9 @@ import sys
 # over an installed version of the project
 sys.path.insert(0, os.path.join(os.path.abspath(__file__), '..'))
 
-import lal_cuda._internal.log as SID
+# Initialize the log stream
+import _internal.log as logging
+log = logging.log_stream()
 
 _PACKAGE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 

@@ -17,7 +17,6 @@ sys.path.insert(0, package_parent_dir)
 
 # Import needed internal modules
 pkg = __import__(package_name)
-SID = pkg._internal.log
 
 
 def constructor(loader, node):
@@ -72,7 +71,7 @@ class project:
                     self.filename_project_file_source = os.path.normpath(
                         os.path.join(self.path_project_root, self.filename_project_filename))
         except BaseException:
-            SID.log.comment("Installed environment will be assumed.")
+            pkg.log.comment("Installed environment will be assumed.")
 
         # Read the project file
         with open_project_file(self) as file_in:
@@ -125,7 +124,7 @@ class project_file():
             # ... if so, update the package's copy of the project file.  This is needed because if
             #    this is being run from an installed package, then there is no access to files outside
             #    of the package, and we need to work with an up-to-date copy instead.
-            SID.log.open("Validating package's project files...")
+            pkg.log.open("Validating package's project files...")
             try:
                 flag_update = False
                 if(not os.path.isfile(self.project.filename_project_file)):
@@ -135,11 +134,11 @@ class project_file():
                 if(flag_update):
                     # Make a copy of the project file
                     shutil.copy2(self.project.filename_project_file_source, self.project.filename_project_file)
-                    SID.log.close("Updated.")
+                    pkg.log.close("Updated.")
                 else:
-                    SID.log.close("Up-to-date.")
+                    pkg.log.close("Up-to-date.")
             except BaseException:
-                SID.log.error("Could not update package's project file.")
+                pkg.log.error("Could not update package's project file.")
 
             # Create a dictionary of a bunch of auxiliary project information
 
@@ -179,7 +178,7 @@ class project_file():
                     version_string_source = str(fp_in.readline()).strip('\n')
                     aux_params.append({'version': version_string_source})
             except BaseException:
-                SID.log.comment("Project '.version' file not found.  Setting version='unset'")
+                pkg.log.comment("Project '.version' file not found.  Setting version='unset'")
                 aux_params.append({'version': 'unset'})
 
             # TODO: Need to split version from release.
@@ -195,7 +194,7 @@ class project_file():
             self.fp_prj = open(self.project.filename_project_file)
             self.fp_aux = open(self.project.filename_auxiliary_file)
         except BaseException:
-            SID.log.error("Could not open project file {%s}." % (self.project.filename))
+            pkg.log.error("Could not open project file {%s}." % (self.project.filename))
             raise
 
     def close(self):
@@ -205,7 +204,7 @@ class project_file():
             if(self.fp_aux is not None):
                 self.fp_aux.close()
         except BaseException:
-            SID.log.error("Could not close project file {%s}." % (self.project.filename))
+            pkg.log.error("Could not close project file {%s}." % (self.project.filename))
             raise
 
     def load(self):
@@ -216,7 +215,7 @@ class project_file():
             # Add a few extra things
             params_list.append([{'path_project_root': self.project.path_project_root}])
         except BaseException:
-            SID.log.error("Could not load project file {%s}." % (self.project.filename))
+            pkg.log.error("Could not load project file {%s}." % (self.project.filename))
             raise
         finally:
             result = dict()
@@ -233,15 +232,15 @@ class open_project_file:
 
     def __enter__(self):
         # Open the package's copy of the file
-        SID.log.open("Opening project...")
+        pkg.log.open("Opening project...")
         try:
             self.file_in = project_file(self.project)
             self.file_in.open()
         except BaseException:
-            SID.log.error("Could not open project file.")
+            pkg.log.error("Could not open project file.")
             raise
         finally:
-            SID.log.close("Done.")
+            pkg.log.close("Done.")
             return self.file_in
 
     def __exit__(self, *exc):

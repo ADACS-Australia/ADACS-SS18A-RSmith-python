@@ -141,7 +141,3 @@ class log_stream(object):
         else:
             message = err_msg
         raise Exception(message)
-
-
-# Initialize the log stream
-log = log_stream()

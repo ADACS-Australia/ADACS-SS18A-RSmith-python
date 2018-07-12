@@ -6,6 +6,7 @@ import timeit
 
 import lal
 import lalsimulation
+import lal_cuda
 import lal_cuda.SimIMRPhenomPFrequencySequence as model
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
@@ -139,9 +140,9 @@ def PhenomPCore(
             # Burn a number of calls (to avoid contamination from Cuda context initialization if buf=None, for example)
             if(n_burn > 0):
                 if(n_burn == 1):
-                    SID.log.comment("Burning a call: %f seconds." % (t.timeit(number=n_burn)))
+                    lal_cuda.log.comment("Burning a call: %f seconds." % (t.timeit(number=n_burn)))
                 else:
-                    SID.log.comment("Burning %d calls: %f seconds." % (n_burn, t.timeit(number=n_burn)))
+                    lal_cuda.log.comment("Burning %d calls: %f seconds." % (n_burn, t.timeit(number=n_burn)))
                 n_burn = 0
 
             # Call the model n_avg times to generate the timing result
@@ -149,7 +150,7 @@ def PhenomPCore(
 
             # Print timing result
             if(len(n_freq_list) == 1):
-                SID.log.comment("Average timing of %d calls: %.5f seconds." % (n_avg, wallclock_i / float(n_avg)))
+                lal_cuda.log.comment("Average timing of %d calls: %.5f seconds." % (n_avg, wallclock_i / float(n_avg)))
             else:
                 if(i_n_freq == 0):
                     print("# Column 01: Iteration")

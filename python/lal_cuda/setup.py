@@ -1,30 +1,40 @@
 import os
 import sys
+import importlib
 from setuptools import setup, find_packages
 
 # Make sure that what's in this path takes precidence
 # over an installed version of the project
 sys.path.insert(0, os.path.abspath(__file__))
 
-import lal_cuda._internal.project as prj
-import lal_cuda._internal.package as pkg
-import lal_cuda._internal.log as SID
+# Infer the name of this package from the path of __file__
+package_root_dir = os.path.abspath(os.path.dirname(__file__))
+package_name = os.path.basename(package_root_dir)
+
+# Make sure that what's in this path takes precidence
+# over an installed version of the project
+sys.path.insert(0, os.path.join(package_root_dir,package_name))
+
+# Import needed internal modules
+pkg = importlib.import_module(package_name)
+_prj = importlib.import_module(package_name+'._internal.project')
+_pkg = importlib.import_module(package_name+'._internal.package')
 
 # Fetch all the meta data for the project & package
-this_project = prj.project(os.path.abspath(__file__))
-this_package = pkg.package(os.path.abspath(__file__))
+this_project = _prj.project(os.path.abspath(__file__))
+this_package = _pkg.package(os.path.abspath(__file__))
 
 # Print project and package meta data to stdout
-SID.log.comment('')
-SID.log.comment(this_project)
-SID.log.comment(this_package)
+pkg.log.comment('')
+pkg.log.comment(this_project)
+pkg.log.comment(this_package)
 
 # This line converts the package_scripts list above into the entry point
 # list needed by Click, provided that:
 #    1) each script is in its own file
 #    2) the script name matches the file name
 #    3) There is only one script per file
-SID.log.comment("Executable scripts:")
+pkg.log.comment("Executable scripts:")
 package_scripts = this_package.collect_package_scripts()
 entry_points = []
 for script_name_i, script_pkg_path_i in package_scripts:
@@ -34,8 +44,8 @@ for script_name_i, script_pkg_path_i in package_scripts:
          this_package.params['name'],
          script_pkg_path_i,
          script_name_i))
-    SID.log.append(" %s" % (script_name_i))
-SID.log.unhang()
+    pkg.log.append(" %s" % (script_name_i))
+pkg.log.unhang()
 
 # Execute setup
 setup(

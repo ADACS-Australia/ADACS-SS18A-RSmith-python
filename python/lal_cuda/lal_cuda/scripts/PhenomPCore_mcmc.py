@@ -12,7 +12,6 @@ from chainconsumer import ChainConsumer
 import lal
 import lalsimulation
 import lal_cuda
-import lal_cuda._internal.log as SID
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -136,39 +135,39 @@ def PhenomPCore_mcmc(filename_plot, filename_out, n_walkers, n_steps, freqs_rang
     then calls PhenomPCore which in-turn calls PhenomPCoreOneFrequency.
     """
     if(filename_plot):
-        SID.log.open("Generating chain plots for {%s}..." % (filename_plot))
+        lal_cuda.log.open("Generating chain plots for {%s}..." % (filename_plot))
 
         # Instantiate chain consumer
-        SID.log.open("Initializing chain consumer...")
+        lal_cuda.log.open("Initializing chain consumer...")
         c = ChainConsumer()
-        SID.log.close("Done.")
+        lal_cuda.log.close("Done.")
 
         # Load/add the given chain
-        SID.log.open("Reading chain...")
+        lal_cuda.log.open("Reading chain...")
         with open(filename_plot, "rb") as file_in:
             c.add_chain(pickle.load(file_in))
-        SID.log.close("Done.", time_elapsed=True)
+        lal_cuda.log.close("Done.", time_elapsed=True)
 
         # Create a filename base from the input filename
         filename_base = str(os.path.splitext(os.path.basename(filename_plot))[0])
 
         # Generate plots
-        SID.log.open("Generating plot...")
+        lal_cuda.log.open("Generating plot...")
         fig = c.plotter.plot(filename="%s.pdf" % (filename_base))
-        SID.log.close("Done.", time_elapsed=True)
+        lal_cuda.log.close("Done.", time_elapsed=True)
 
-        SID.log.close("Done.", time_elapsed=True)
+        lal_cuda.log.close("Done.", time_elapsed=True)
 
     else:
-        SID.log.open("Generating MCMC chain...")
-        SID.log.comment("Data file: {%s}" % (data_files[0]))
-        SID.log.comment("PSD file:  {%s}" % (data_files[1]))
+        lal_cuda.log.open("Generating MCMC chain...")
+        lal_cuda.log.comment("Data file: {%s}" % (data_files[0]))
+        lal_cuda.log.comment("PSD file:  {%s}" % (data_files[1]))
 
         # Initialize random seed
         np.random.seed(0)
 
         # Read 'freqData' file
-        SID.log.open("Reading {%s}..." % (data_files[0]))
+        lal_cuda.log.open("Reading {%s}..." % (data_files[0]))
         data_file = np.column_stack(np.loadtxt(data_files[0]))
 
         # Determine the range of data that lies within our given frequency range
@@ -180,33 +179,33 @@ def PhenomPCore_mcmc(filename_plot, filename_out, n_walkers, n_steps, freqs_rang
             if(freq_i < freqs_range[1]):
                 idx_max = i_freq + 1
         if(idx_min < 0 or idx_max > len(data_file[0])):
-            SID.log.error("Invalid frequency range [%le,%le]." % (freqs_range[0], freqs_range[1]))
+            lal_cuda.log.error("Invalid frequency range [%le,%le]." % (freqs_range[0], freqs_range[1]))
         n_use = idx_max - idx_min
-        SID.log.comment("Using %d of %d lines." % (n_use, len(data_file[0])))
+        lal_cuda.log.comment("Using %d of %d lines." % (n_use, len(data_file[0])))
 
         # Subselect the data
         freqs = data_file[0][idx_min:idx_max]
         data = data_file[1][idx_min:idx_max] + 1j * data_file[2][idx_min:idx_max]
-        SID.log.close("Done.")
+        lal_cuda.log.close("Done.")
 
         # Read 'PSD' file
-        SID.log.open("Reading {%s}..." % (data_files[1]))
+        lal_cuda.log.open("Reading {%s}..." % (data_files[1]))
         psd_file = np.column_stack(np.loadtxt(data_files[1]))
-        SID.log.comment("Using %d of %d lines." % (n_use, len(psd_file[0])))
+        lal_cuda.log.comment("Using %d of %d lines." % (n_use, len(psd_file[0])))
         freqs_PSD = psd_file[0][idx_min:idx_max]
         psd = psd_file[1][idx_min:idx_max]
-        SID.log.close("Done.")
+        lal_cuda.log.close("Done.")
 
         # Confirm that the two data files have the same freq array
         if(not np.array_equal(freqs, freqs_PSD)):
-            SID.log.error("Input data files do not have compatable frequency arrays.")
+            lal_cuda.log.error("Input data files do not have compatable frequency arrays.")
 
         # Initialize buffer
         buf = None
         if(not legacy and use_buffer):
-            SID.log.open("Allocating buffer...")
+            lal_cuda.log.open("Allocating buffer...")
             buf = lalsimulation.PhenomPCore_buffer_alloc(int(len(freqs)))
-            SID.log.close("Done.")
+            lal_cuda.log.close("Done.")
 
         n_dim = 1
 
@@ -217,23 +216,23 @@ def PhenomPCore_mcmc(filename_plot, filename_out, n_walkers, n_steps, freqs_rang
         sampler = emcee.EnsembleSampler(n_walkers, n_dim, logprob, args=[data, psd, freqs, buf, legacy])
 
         # Generate chain, printing a progress bar as it goes
-        SID.log.open("Generating chain...")
-        SID.log.progress_bar(sampler.sample, n_steps, p0, iterations=n_steps)
-        SID.log.close("Done.")
+        lal_cuda.log.open("Generating chain...")
+        lal_cuda.log.progress_bar(sampler.sample, n_steps, p0, iterations=n_steps)
+        lal_cuda.log.close("Done.")
 
         # Clean-up buffer
         if(buf):
-            SID.log.open("Freeing buffer...")
+            lal_cuda.log.open("Freeing buffer...")
             lalsimulation.PhenomPCore_buffer_free(buf)
-            SID.log.close("Done.")
+            lal_cuda.log.close("Done.")
 
         # Save chain
-        SID.log.open("Saving chains to {%s}..." % (filename_out))
+        lal_cuda.log.open("Saving chains to {%s}..." % (filename_out))
         with open(filename_out, "wb") as file_out:
             pickle.dump(sampler.flatchain, file_out)
-        SID.log.close("Done.", time_elapsed=True)
+        lal_cuda.log.close("Done.", time_elapsed=True)
 
-        SID.log.close("Done.", time_elapsed=True)
+        lal_cuda.log.close("Done.", time_elapsed=True)
 
 
 # Permit script execution
