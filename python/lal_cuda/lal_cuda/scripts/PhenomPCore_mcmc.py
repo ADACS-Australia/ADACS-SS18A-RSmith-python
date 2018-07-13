@@ -43,7 +43,7 @@ def htilde_of_f(freqs, m1, m2, chi1L, chi2L, chip, thetaJ, alpha, dist, fplus, f
             freqs, chi1L, chi2L, chip, thetaJ, m1, m2, dist, alpha, phi_c, fref, 1, None)
     else:
         H = lalsimulation.SimIMRPhenomPFrequencySequence(
-            freqs, chi1L, chi2L, chip, thetaJ, m1, m2, dist, alpha, phi_c, fref, 1, buf, None)
+            freqs, chi1L, chi2L, chip, thetaJ, m1, m2, dist, alpha, phi_c, fref, 1, None, buf)
     hplus = H[0].data.data
     hcross = H[1].data.data
 
@@ -204,7 +204,7 @@ def PhenomPCore_mcmc(filename_plot, filename_out, n_walkers, n_steps, freqs_rang
         buf = None
         if(not legacy and use_buffer):
             lal_cuda.log.open("Allocating buffer...")
-            buf = lalsimulation.PhenomPCore_buffer_alloc(int(len(freqs)))
+            buf = lalsimulation.PhenomPCore_buffer(int(len(freqs)))
             lal_cuda.log.close("Done.")
 
         n_dim = 1
@@ -223,7 +223,7 @@ def PhenomPCore_mcmc(filename_plot, filename_out, n_walkers, n_steps, freqs_rang
         # Clean-up buffer
         if(buf):
             lal_cuda.log.open("Freeing buffer...")
-            lalsimulation.PhenomPCore_buffer_free(buf)
+            lalsimulation.free_PhenomPCore_buffer(buf)
             lal_cuda.log.close("Done.")
 
         # Save chain

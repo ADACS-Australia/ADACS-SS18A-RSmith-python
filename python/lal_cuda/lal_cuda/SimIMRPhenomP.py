@@ -306,8 +306,8 @@ class inputs(object):
                 self.phic,
                 self.fref,
                 self.mode,
-                buf,
-                None)))
+                None,
+                buf)))
 
     def __str__(self):
         """Return a string representation of the parameter set."""
