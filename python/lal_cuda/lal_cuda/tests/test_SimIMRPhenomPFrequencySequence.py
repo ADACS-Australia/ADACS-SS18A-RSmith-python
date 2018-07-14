@@ -26,7 +26,7 @@ def check_SimIMRPhenomPFrequencySequence(use_buffer):
 
         # Create buffer
         if(use_buffer and not legacy):
-            buf = lalsimulation.PhenomPCore_buffer_alloc(inputs_i.n_freqs)
+            buf = lalsimulation.PhenomPCore_buffer(inputs_i.n_freqs)
             n_check = 3
         else:
             buf = None
@@ -72,7 +72,7 @@ def check_SimIMRPhenomPFrequencySequence(use_buffer):
 
         # Clean-up buffer
         if(buf):
-            lalsimulation.PhenomPCore_buffer_free(buf)
+            lalsimulation.free_PhenomPCore_buffer(buf)
             buf = None
 
     # assert no error message has been registered, else print messages

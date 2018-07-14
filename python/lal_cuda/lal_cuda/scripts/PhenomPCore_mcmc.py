@@ -174,9 +174,9 @@ def PhenomPCore_mcmc(filename_plot, filename_out, n_walkers, n_steps, freqs_rang
         idx_min = -1
         idx_max = len(data_file[0]) + 1
         for i_freq, freq_i in enumerate(data_file[0]):
-            if(freq_i >= freqs_range[0] and idx_min <= 0):
+            if(freq_i >= freqs_range[0] and idx_min < 0):
                 idx_min = i_freq
-            if(freq_i < freqs_range[1]):
+            if(freq_i <= freqs_range[1]):
                 idx_max = i_freq + 1
         if(idx_min < 0 or idx_max > len(data_file[0])):
             lal_cuda.log.error("Invalid frequency range [%le,%le]." % (freqs_range[0], freqs_range[1]))
