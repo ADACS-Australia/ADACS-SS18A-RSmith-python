@@ -32,8 +32,7 @@ pkg.log.comment('')
 pkg.log.comment(this_project)
 pkg.log.comment(this_package)
 
-# This line converts the package_scripts list above into the entry point
-# list needed by Click, provided that:
+# In the following, we build a list of executable stripts.  It assumes:
 #    1) each script is in its own file
 #    2) the script name matches the file name
 #    3) There is only one script per file
@@ -42,9 +41,8 @@ package_scripts = this_package.collect_package_scripts()
 entry_points = []
 for script_name_i, script_pkg_path_i in package_scripts:
     entry_points.append(
-        "%s=%s.scripts.%s:%s" %
+        "%s=scripts.%s:%s" %
         (script_name_i,
-         this_package.params['name'],
          script_pkg_path_i,
          script_name_i))
     pkg.log.append(" %s" % (script_name_i))

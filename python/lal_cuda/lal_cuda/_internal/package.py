@@ -74,7 +74,7 @@ class package:
         paths = []
 
         # Add the scripts directory
-        path_start = os.path.join(self.path_package_root, "scripts")
+        path_start = os.path.join(self.path_package_parent, "scripts")
         for (path, directories, filenames) in os.walk(path_start, followlinks=True):
             for filename in filenames:
                 filename_base = os.path.basename(filename)
