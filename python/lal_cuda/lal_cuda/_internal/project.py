@@ -16,9 +16,11 @@ package_name = os.path.basename(package_root_dir)
 # over an installed version of the project
 sys.path.insert(0, package_parent_dir)
 
-# Import needed internal modules
-pkg = importlib.import_module(package_name)
+# Import the current package
+this_pkg = importlib.import_module(package_name)
 
+# Import the internal package-helper package
+_pkg = importlib.import_module(package_name + '._internal.package')
 
 def constructor(loader, node):
     return node.value
@@ -45,7 +47,7 @@ class project:
         self.filename_auxiliary_filename = '.project_aux.yml'
 
         # Set the filename of the package copy of the project file
-        package_root = pkg.find_in_parent_path(self.path_call, self.filename_project_filename)
+        package_root = this_pkg.find_in_parent_path(self.path_call, self.filename_project_filename)
         if(package_root is not None):
             self.filename_project_file = os.path.join(package_root, self.filename_project_filename)
             self.filename_auxiliary_file = os.path.abspath(
@@ -72,11 +74,17 @@ class project:
                     self.filename_project_file_source = os.path.normpath(
                         os.path.join(self.path_project_root, self.filename_project_filename))
         except BaseException:
-            pkg.log.comment("Installed environment will be assumed.")
+            this_pkg.log.comment("Installed environment will be assumed.")
 
         # Read the project file
         with open_project_file(self) as file_in:
             self.params = file_in.load()
+
+        # Load meta data of Python packages
+        self.packages = []
+        for package_name in self.params['python_packages']:
+            package_setup_py = os.path.abspath(os.path.join(self.params['dir_python'],package_name,'setup.py'))
+            self.packages.append(_pkg.package(os.path.abspath(package_setup_py)))
 
     def add_packages_to_path(self):
         """Import all the python packages belonging to this project."""
@@ -86,7 +94,7 @@ class project:
             for filename in filenames:
                 # Exclude gbpBuild (load it independently) for the case
                 # that we're running this within that package.
-                if(filename == "setup.py" and directory != "gbpBuild"):
+                if(filename == "setup.py"):
                     path_package = os.path.abspath(directory)
                     sys.path.insert(0, path_package)
                     count += 1
@@ -125,7 +133,7 @@ class project_file():
             # ... if so, update the package's copy of the project file.  This is needed because if
             #    this is being run from an installed package, then there is no access to files outside
             #    of the package, and we need to work with an up-to-date copy instead.
-            pkg.log.open("Validating package's project files...")
+            this_pkg.log.open("Validating package's project files...")
             try:
                 flag_update = False
                 if(not os.path.isfile(self.project.filename_project_file)):
@@ -135,11 +143,11 @@ class project_file():
                 if(flag_update):
                     # Make a copy of the project file
                     shutil.copy2(self.project.filename_project_file_source, self.project.filename_project_file)
-                    pkg.log.close("Updated.")
+                    this_pkg.log.close("Updated.")
                 else:
-                    pkg.log.close("Up-to-date.")
+                    this_pkg.log.close("Up-to-date.")
             except BaseException:
-                pkg.log.error("Could not update package's project file.")
+                this_pkg.log.error("Could not update package's project file.")
 
             # Create a dictionary of a bunch of auxiliary project information
 
@@ -179,7 +187,7 @@ class project_file():
                     version_string_source = str(fp_in.readline()).strip('\n')
                     aux_params.append({'version': version_string_source})
             except BaseException:
-                pkg.log.comment("Project '.version' file not found.  Setting version='unset'")
+                this_pkg.log.comment("Project '.version' file not found.  Setting version='unset'")
                 aux_params.append({'version': 'unset'})
 
             # TODO: Need to split version from release.
@@ -195,7 +203,7 @@ class project_file():
             self.fp_prj = open(self.project.filename_project_file)
             self.fp_aux = open(self.project.filename_auxiliary_file)
         except BaseException:
-            pkg.log.error("Could not open project file {%s}." % (self.project.filename))
+            this_pkg.log.error("Could not open project file {%s}." % (self.project.filename))
             raise
 
     def close(self):
@@ -205,7 +213,7 @@ class project_file():
             if(self.fp_aux is not None):
                 self.fp_aux.close()
         except BaseException:
-            pkg.log.error("Could not close project file {%s}." % (self.project.filename))
+            this_pkg.log.error("Could not close project file {%s}." % (self.project.filename))
             raise
 
     def load(self):
@@ -216,7 +224,7 @@ class project_file():
             # Add a few extra things
             params_list.append([{'path_project_root': self.project.path_project_root}])
         except BaseException:
-            pkg.log.error("Could not load project file {%s}." % (self.project.filename))
+            this_pkg.log.error("Could not load project file {%s}." % (self.project.filename))
             raise
         finally:
             result = dict()
@@ -233,15 +241,15 @@ class open_project_file:
 
     def __enter__(self):
         # Open the package's copy of the file
-        pkg.log.open("Opening project...")
+        this_pkg.log.open("Opening project...")
         try:
             self.file_in = project_file(self.project)
             self.file_in.open()
         except BaseException:
-            pkg.log.error("Could not open project file.")
+            this_pkg.log.error("Could not open project file.")
             raise
         finally:
-            pkg.log.close("Done.")
+            this_pkg.log.close("Done.")
             return self.file_in
 
     def __exit__(self, *exc):
