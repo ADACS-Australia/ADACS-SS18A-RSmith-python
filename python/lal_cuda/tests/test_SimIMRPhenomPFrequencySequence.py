@@ -19,18 +19,22 @@ def check_SimIMRPhenomPFrequencySequence(use_buffer):
     filename_ref_inputs = glob.glob(lal_cuda.full_path_datafile("inputs.dat*"))
 
     # Iterate over all reference inputs
-    for filename_ref_input_i in filename_ref_inputs:
+    n_tests = len(filename_ref_inputs)
+    for i_test,filename_ref_input_i in enumerate(filename_ref_inputs):
 
         # Initialise inputs for run
         inputs_i = model.inputs.read(filename_ref_input_i)
 
         # Create buffer
+        # Perform multiple iterations because there can be
+        # noise in async GPU implementations and because the
+        # buffer can be compromised in successive calls, etc.
         if(use_buffer and not legacy):
             buf = lalsimulation.PhenomPCore_buffer(inputs_i.n_freqs)
-            n_check = 3
+            n_check = 5
         else:
             buf = None
-            n_check = 1
+            n_check = 5
 
         # If buf is being used, check that multiple calls are identical
         flag_check = False
@@ -38,33 +42,27 @@ def check_SimIMRPhenomPFrequencySequence(use_buffer):
             # Perform run
             outputs_i = inputs_i.run(buf=buf, legacy=legacy)
 
-            # Calculate difference from stored reference
+            # Calculate *fractional* difference from stored reference
             diff_i = model.calc_difference_from_reference(inputs_i, outputs_i, verbose=False)
 
             # Perform tests
-            if(i_check == 0):
-                tolerance = 1e-6
-                if math.fabs(diff_i['hpval_real_diff_max']) > tolerance:
-                    errors.append("%s: hpval_real_diff_max=%le > %le" %
-                                  (os.path.basename(filename_ref_input_i), diff_i['hpval_real_diff_max'], tolerance))
-                    flag_check = True
-                if math.fabs(diff_i['hpval_imag_diff_max']) > tolerance:
-                    errors.append("%s: hpval_imag_diff_max=%le > %le" %
-                                  (os.path.basename(filename_ref_input_i), diff_i['hpval_imag_diff_max'], tolerance))
-                    flag_check = True
-                if math.fabs(diff_i['hcval_real_diff_max']) > tolerance:
-                    errors.append("%s: hcval_real_diff_max=%le > %le" %
-                                  (os.path.basename(filename_ref_input_i), diff_i['hcval_real_diff_max'], tolerance))
-                    flag_check = True
-                if math.fabs(diff_i['hcval_imag_diff_max']) > tolerance:
-                    errors.append("%s: hcval_imag_diff_max=%le > %le" %
-                                  (os.path.basename(filename_ref_input_i), diff_i['hcval_imag_diff_max'], tolerance))
-                    flag_check = True
-                outputs_0 = outputs_i
-            else:
-                if(outputs_i != outputs_0):
-                    errors.append("%s: outputs_i!=outputs_0 for i=%d" % (inputs_i, i_check))
-                    flag_check = True
+            tolerance = 1e-6
+            if math.fabs(diff_i['hpval_real_diff_max']) > tolerance:
+                errors.append("%s: hpval_real_diff_max=%le > %le" %
+                              (os.path.basename(filename_ref_input_i), diff_i['hpval_real_diff_max'], tolerance))
+                flag_check = True
+            if math.fabs(diff_i['hpval_imag_diff_max']) > tolerance:
+                errors.append("%s: hpval_imag_diff_max=%le > %le" %
+                              (os.path.basename(filename_ref_input_i), diff_i['hpval_imag_diff_max'], tolerance))
+                flag_check = True
+            if math.fabs(diff_i['hcval_real_diff_max']) > tolerance:
+                errors.append("%s: hcval_real_diff_max=%le > %le" %
+                              (os.path.basename(filename_ref_input_i), diff_i['hcval_real_diff_max'], tolerance))
+                flag_check = True
+            if math.fabs(diff_i['hcval_imag_diff_max']) > tolerance:
+                errors.append("%s: hcval_imag_diff_max=%le > %le" %
+                              (os.path.basename(filename_ref_input_i), diff_i['hcval_imag_diff_max'], tolerance))
+                flag_check = True
 
             # Stop looping if an error occurs for this parameter set
             if(flag_check):

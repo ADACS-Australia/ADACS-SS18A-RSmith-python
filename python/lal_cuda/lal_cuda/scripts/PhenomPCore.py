@@ -112,7 +112,7 @@ def PhenomPCore(
         for i_n_freq, n_freq_i in enumerate(n_freq_list):
 
             # Initialize buffer (saves time for repeated calls)
-            if(use_buffer):
+            if(use_buffer and not legacy):
                 buf = lalsimulation.PhenomPCore_buffer(int(n_freq_i))
             else:
                 buf = None
@@ -160,7 +160,8 @@ def PhenomPCore(
                 print("%3d %8d %10.3le %10.3le" % (i_n_freq, n_freq_i, wallclock_i, wallclock_i / float(n_avg)))
 
             # Clean-up buffer
-            lalsimulation.free_PhenomPCore_buffer(buf)
+            if(buf):
+                lalsimulation.free_PhenomPCore_buffer(buf)
 
     # ... if n_avg<=1, then just run the model and exit.
     else:
