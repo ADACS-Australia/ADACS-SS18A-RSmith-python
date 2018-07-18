@@ -17,8 +17,14 @@ sys.path.insert(0, package_parent_dir)
 
 # Import needed internal modules
 _log = importlib.import_module(package_name+'._internal.log')
-log = _log.log_stream()
 
+# Check if log has already been created.  If so: use it.  If not: create it.
+if '_gbpBuild_log' not in globals():
+    global _gbpBuild_log
+    _gbpBuild_log = _log.log_stream()
+
+# Set the module log to be the global one
+log = _gbpBuild_log
 
 _PACKAGE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
