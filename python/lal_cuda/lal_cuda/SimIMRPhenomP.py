@@ -38,14 +38,15 @@ def to_binary(inputs, outputs, filename_label=None):
     outputs.write(filename_label, filename_label=filename_label)
 
 
-def calc_frac_diff(x,y):
+def calc_frac_diff(x, y):
     """Calculate the fractional difference between two numbers."""
-    if(x!=0):
-        return math.fabs((x-y)/x)
-    elif(y!=0.):
+    if(y != 0):
+        return math.fabs((x - y) / y)
+    elif(x != 0.):
         return 1.
     else:
         return 0.
+
 
 def calc_difference_from_reference(inputs, outputs, verbose=True):
 
@@ -87,10 +88,10 @@ def calc_difference_from_reference(inputs, outputs, verbose=True):
         hcval_real_diff_max = 0.
         hcval_imag_diff_max = 0.
         for (hp_i, hc_i, hp_ref_i, hc_ref_i) in zip(outputs.hp, outputs.hc, outputs_ref.hp, outputs_ref.hc):
-            hpval_real_diff_i = calc_frac_diff(hp_i.real,hp_ref_i.real)
-            hpval_imag_diff_i = calc_frac_diff(hp_i.imag,hp_ref_i.imag)
-            hcval_real_diff_i = calc_frac_diff(hc_i.real,hc_ref_i.real)
-            hcval_imag_diff_i = calc_frac_diff(hc_i.imag,hc_ref_i.imag)
+            hpval_real_diff_i = calc_frac_diff(hp_i.real, hp_ref_i.real)
+            hpval_imag_diff_i = calc_frac_diff(hp_i.imag, hp_ref_i.imag)
+            hcval_real_diff_i = calc_frac_diff(hc_i.real, hc_ref_i.real)
+            hcval_imag_diff_i = calc_frac_diff(hc_i.imag, hc_ref_i.imag)
             hpval_real_diff_avg += hpval_real_diff_i
             hpval_imag_diff_avg += hpval_imag_diff_i
             hcval_real_diff_avg += hcval_real_diff_i

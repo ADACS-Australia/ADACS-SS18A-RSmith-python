@@ -4,8 +4,8 @@ import importlib
 import click
 
 # Infer the name of this package from the path of __file__
-package_parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..'))
-package_root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
+package_parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+package_root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 package_name = os.path.basename(package_root_dir)
 
 # Make sure that what's in this path takes precidence
@@ -13,7 +13,7 @@ package_name = os.path.basename(package_root_dir)
 sys.path.insert(0, package_parent_dir)
 
 # Import needed internal modules
-prj = importlib.import_module(package_name+'._internal.project')
+prj = importlib.import_module(package_name + '._internal.project')
 
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])

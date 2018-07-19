@@ -22,6 +22,7 @@ this_pkg = importlib.import_module(package_name)
 # Import the internal package-helper package
 _pkg = importlib.import_module(package_name + '._internal.package')
 
+
 def constructor(loader, node):
     return node.value
 
@@ -83,7 +84,7 @@ class project:
         # Load meta data of Python packages
         self.packages = []
         for package_name in self.params['python_packages']:
-            package_setup_py = os.path.abspath(os.path.join(self.params['dir_python'],package_name,'setup.py'))
+            package_setup_py = os.path.abspath(os.path.join(self.params['dir_python'], package_name, 'setup.py'))
             self.packages.append(_pkg.package(os.path.abspath(package_setup_py)))
 
     def add_packages_to_path(self):

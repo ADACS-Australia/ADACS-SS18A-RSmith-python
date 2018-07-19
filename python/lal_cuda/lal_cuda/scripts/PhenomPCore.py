@@ -115,7 +115,7 @@ def PhenomPCore(
 
             # Initialize buffer (saves time for repeated calls)
             if(use_buffer and not legacy):
-                buf = lalsimulation.PhenomPCore_buffer(int(n_freq_i),n_streams)
+                buf = lalsimulation.PhenomPCore_buffer(int(n_freq_i), n_streams)
             else:
                 buf = None
 

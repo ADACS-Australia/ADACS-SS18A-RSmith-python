@@ -11,7 +11,7 @@ import lal_cuda.SimIMRPhenomP as model
 legacy = False
 
 
-def check_SimIMRPhenomPFrequencySequence(use_buffer):
+def check_SimIMRPhenomPFrequencySequence(use_buffer, n_streams):
     # Intitialize an empty list of errors
     errors = []
 
@@ -20,7 +20,7 @@ def check_SimIMRPhenomPFrequencySequence(use_buffer):
 
     # Iterate over all reference inputs
     n_tests = len(filename_ref_inputs)
-    for i_test,filename_ref_input_i in enumerate(filename_ref_inputs):
+    for i_test, filename_ref_input_i in enumerate(filename_ref_inputs):
 
         # Initialise inputs for run
         inputs_i = model.inputs.read(filename_ref_input_i)
@@ -30,7 +30,7 @@ def check_SimIMRPhenomPFrequencySequence(use_buffer):
         # noise in async GPU implementations and because the
         # buffer can be compromised in successive calls, etc.
         if(use_buffer and not legacy):
-            buf = lalsimulation.PhenomPCore_buffer(inputs_i.n_freqs)
+            buf = lalsimulation.PhenomPCore_buffer(inputs_i.n_freqs, n_streams)
             n_check = 5
         else:
             buf = None
@@ -78,9 +78,15 @@ def check_SimIMRPhenomPFrequencySequence(use_buffer):
 
 
 def test_SimIMRPhenomPFrequencySequence_without_buffer():
-    check_SimIMRPhenomPFrequencySequence(use_buffer=False)
+    check_SimIMRPhenomPFrequencySequence(use_buffer=False, n_streams=0)
+    check_SimIMRPhenomPFrequencySequence(use_buffer=False, n_streams=1)
+    check_SimIMRPhenomPFrequencySequence(use_buffer=False, n_streams=8)
+    check_SimIMRPhenomPFrequencySequence(use_buffer=False, n_streams=16)
 
 
 if(not legacy):
     def test_SimIMRPhenomPFrequencySequence_with_buffer():
-        check_SimIMRPhenomPFrequencySequence(use_buffer=True)
+        check_SimIMRPhenomPFrequencySequence(use_buffer=True, n_streams=0)
+        check_SimIMRPhenomPFrequencySequence(use_buffer=True, n_streams=1)
+        check_SimIMRPhenomPFrequencySequence(use_buffer=True, n_streams=8)
+        check_SimIMRPhenomPFrequencySequence(use_buffer=True, n_streams=16)

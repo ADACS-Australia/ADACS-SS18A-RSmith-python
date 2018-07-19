@@ -120,7 +120,16 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
             lal_cuda.full_path_datafile("H1-freqData.dat")),
         lal_cuda.full_path_datafile(
             lal_cuda.full_path_datafile("H1-PSD.dat"))])
-def PhenomPCore_mcmc(filename_plot, filename_out, n_walkers, n_steps, freqs_range, use_buffer, n_streams, legacy, data_files):
+def PhenomPCore_mcmc(
+        filename_plot,
+        filename_out,
+        n_walkers,
+        n_steps,
+        freqs_range,
+        use_buffer,
+        n_streams,
+        legacy,
+        data_files):
     """This script either generates (default) or plots (with the.
 
     --filename_plot option) an MCMC chain describing the posterior probability
@@ -205,7 +214,7 @@ def PhenomPCore_mcmc(filename_plot, filename_out, n_walkers, n_steps, freqs_rang
         buf = None
         if(not legacy and use_buffer):
             lal_cuda.log.open("Allocating buffer...")
-            buf = lalsimulation.PhenomPCore_buffer(int(len(freqs)),n_streams)
+            buf = lalsimulation.PhenomPCore_buffer(int(len(freqs)), n_streams)
             lal_cuda.log.close("Done.")
 
         n_dim = 1

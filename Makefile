@@ -195,7 +195,7 @@ tests-clean:
 ##################################
 
 # Run tests
-tests:	.print_status build $(TEST_LIST)
+tests:	.print_status $(TEST_LIST)
 
 # Generate code coverage reports
 coverage:	.print_status build $(COVERAGE_LIST)
