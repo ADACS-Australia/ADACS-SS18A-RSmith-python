@@ -107,6 +107,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.option('--freqs_range', type=(float, float), default=(0., 1e10),
               help='Specify the frequency range of the fit as MIN MAX.')
 @click.option('--use_buffer/--no-use_buffer', default=True, show_default=True, help='Use a buffer for accelleration.')
+@click.option('--n_streams', type=int, default=0, show_default=True, help='Number of asynchronous streams')
 @click.option('--legacy/--no-legacy', default=False, show_default=True,
               help='Specify this option if a legacy version of LALSuite (without buffer support) is being used.')
 @click.argument(
@@ -119,7 +120,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
             lal_cuda.full_path_datafile("H1-freqData.dat")),
         lal_cuda.full_path_datafile(
             lal_cuda.full_path_datafile("H1-PSD.dat"))])
-def PhenomPCore_mcmc(filename_plot, filename_out, n_walkers, n_steps, freqs_range, use_buffer, legacy, data_files):
+def PhenomPCore_mcmc(filename_plot, filename_out, n_walkers, n_steps, freqs_range, use_buffer, n_streams, legacy, data_files):
     """This script either generates (default) or plots (with the.
 
     --filename_plot option) an MCMC chain describing the posterior probability
@@ -204,7 +205,7 @@ def PhenomPCore_mcmc(filename_plot, filename_out, n_walkers, n_steps, freqs_rang
         buf = None
         if(not legacy and use_buffer):
             lal_cuda.log.open("Allocating buffer...")
-            buf = lalsimulation.PhenomPCore_buffer(int(len(freqs)))
+            buf = lalsimulation.PhenomPCore_buffer(int(len(freqs)),n_streams)
             lal_cuda.log.close("Done.")
 
         n_dim = 1
