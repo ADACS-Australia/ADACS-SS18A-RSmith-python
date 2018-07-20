@@ -95,11 +95,21 @@ endif
 
 # Help
 help:
+	@$(ECHO) "Usage: make [TARGETS]"
 	@$(ECHO) 
-	@$(ECHO) "The following targets are available:"
-	@$(ECHO) "	build   - build all software for this project"
-	@$(ECHO) "	install - install all software for this project"
-	@$(ECHO) "	etc.  ... finish this help"
+	@$(ECHO) "Available targets:"
+	@$(ECHO) "	init    - perform project initialisation [run once before anything else]"
+	@$(ECHO) "	build   - build all project software"
+	@$(ECHO) "	install - install all project software"
+	@$(ECHO) "	docs    - build documentation"
+	@$(ECHO) "	clean   - clean-out unneeded build/development/etc files"
+	@$(ECHO) 
+	@$(ECHO) "Additional targets for development:"
+	@$(ECHO) "	tests      - run all project tests"
+#	@$(ECHO) "	coverage   - build code coverage reports for tests"
+	@$(ECHO) "	lint-check - check the project linting standards"
+	@$(ECHO) "	lint-fix   - apply the project linting standards"
+	@$(ECHO) "	requirements-update - rebuild the project's '.requirements.txt' file"
 	@$(ECHO) 
 
 # One-time initialization

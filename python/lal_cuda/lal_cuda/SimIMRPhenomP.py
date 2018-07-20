@@ -49,6 +49,14 @@ def calc_frac_diff(x, y):
 
 
 def calc_difference_from_reference(inputs, outputs, verbose=True):
+    """Look for a match between the given inputs and the stored reference
+    inputs.  If found return a dictionary with absolute differences from the
+    given outputs, otherwise print a warning to stdout if verbose=True.
+
+    All reference inputs/outputs were computed by running the
+    PhenomPCore script of this package against a version of LALSuite
+    compiled from commit "3494e18e6d".
+    """
 
     # Get a list of reference input/output files
     filename_ref_inputs = glob.glob(lal_cuda.full_path_datafile("inputs.dat*"))
