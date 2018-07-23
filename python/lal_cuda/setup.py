@@ -38,9 +38,8 @@ pkg.log.comment(this_package)
 #    2) the script name matches the file name
 #    3) There is only one script per file
 pkg.log.comment("Executable scripts:")
-package_scripts = this_package.collect_package_scripts()
 entry_points = []
-for script_name_i, script_pkg_path_i in package_scripts:
+for script_name_i, script_pkg_path_i in this_package.scripts:
     entry_points.append(
         "%s=%s.scripts.%s:%s" %
         (script_name_i,

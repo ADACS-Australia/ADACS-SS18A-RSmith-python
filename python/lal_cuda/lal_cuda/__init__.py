@@ -11,21 +11,23 @@ package_parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..
 package_root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 package_name = os.path.basename(package_root_dir)
 
+# Read the package docstring.  We do things this way to seaparate package-specific
+# content from implementation, to make it easier to update this file, for example
+path_package_docstring = os.path.join(package_root_dir,"%s.docstring"%(package_name))
+with open(path_package_docstring,"r") as fp_docstring:
+    __doc__= ''.join(fp_docstring.readlines())
+
 # Make sure that what's in this path takes precidence
 # over an installed version of the project
 sys.path.insert(0, package_parent_dir)
 
 # Import needed internal modules
-_log = importlib.import_module(package_name + '._internal.log')
+_log = importlib.import_module(package_name+'._internal.log')
 
-# Check if log has already been created.  If so: use it.  If not: create it.
-if '_gbpBuild_log' not in globals():
-    global _gbpBuild_log
-    _gbpBuild_log = _log.log_stream()
+#: The library log stream (see the `_internal.log` module for more details)
+log = _log.log_stream()
 
-# Set the module log to be the global one
-log = _gbpBuild_log
-
+#: The absolute path to the module root path
 _PACKAGE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
@@ -33,14 +35,19 @@ def full_path_datafile(path):
     """Return the full *INSTALLED* path to a directory in the package's root
     directory.
 
-    :param path: A path relative to the package root directory
+    :param path: A path relative to the package's `/data` directory
     :return: The installed path
     """
     return os.path.join(_PACKAGE_ROOT, 'data', path)
 
 
 def find_in_parent_path(path_start, filename_search, check=True):
-    # Initialize the start
+    """Find the path to a given filename, scanning up the directory tree from the given path.  Optionally throw an error if not found.
+
+    :param path_start: The path from which to start the search.
+    :param filename: The filename to search for.
+    :return: Path to the file if found, None if not found.
+    """
     path_result = None
     if(os.path.isdir(path_start)):
         cur_dir = path_start

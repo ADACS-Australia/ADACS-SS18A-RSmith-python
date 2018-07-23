@@ -44,6 +44,10 @@ class package:
         # Assemble a list of data files to bundle with the package
         self.package_files = self.collect_package_files()
 
+        # Assemble a list of package scripts
+        self.scripts = self.collect_package_scripts()
+        print("C:",self.scripts)
+
     def collect_package_files(self):
         """Generate a list of non-code files to be included in the package.
 
@@ -63,6 +67,13 @@ class package:
             if(path != "__pycache__"):
                 for filename in filenames:
                     paths.append(os.path.join('..', path, filename))
+
+        # Add any .docstring files
+        for (path, directories, filenames) in os.walk(self.path_package_root, followlinks=True):
+            for filename in filenames:
+                if(filename.endswith('.docstring')):
+                    paths.append(os.path.join('..', path, filename))
+
         return paths
 
     def collect_package_scripts(self):

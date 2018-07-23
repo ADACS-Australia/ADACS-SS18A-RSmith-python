@@ -1,71 +1,38 @@
 Installation
 ============
 
-To acquire and build this library, you will need to have :code:`git` and :code:`cmake` installed.  You may also want one-or-more of the following optional 3rd-party libraries:
+This package assumes that you have a working copy of the LSC Algorithm Library Suite (`LALSuite <https://wiki.ligo.org/DASWG/LALSuite>`_) installed (see `here <https://wiki.ligo.org/DASWG/LALSuiteInstall#Installing_from_the_git_repository>`_ for instructions).  Note however that the code assumes that you are working with GPU-enabled version which can be cloned from `here2 <https://github.com/ADACS-Australia/ADACS-SS18A-RSmith>`_ (make sure that the code is configured with '--enable-cuda' if you want the GPU acceleration activated).  If this version is not being used, make sure all scripts are run with the '--legacy' flag and that the 'legacy' setting in the tests is enabled, if you want to use those.
 
-* an MPI distribution (eg. OpenMPI)
-
-* CUDA (if you have an NVidia GPGPU installed).
-
-With these installed, you will need to:
-
-1) acquire the code from `GitHub`;
-
-2) configure it with :code:`cmake`; and 
-
-3) build it with :code:`make` 
-
-Alternatively (an perhaps more-often-than-not), you may want to add *gbpSID* as a submodule to another project.  In either case, each of these steps is described in more detail below.
-
-Acquiring the code
+Installing LALSuite
 -------------------
+In detail: to download the ADACS version of LALSuite to `/path/to/src/dir`, compile and install the resulting libraries to `/path/to/dir/install`, perform the following (adjust all paths according to your needs):
 
-It is intended that the latest commit on the 'master' branch will always be the best version to develop with.  To acquire it, simply clone it from *GitHub*::
+.. code-block:: console
 
-    git clone https://github.com/gbpoole/gbpSID.git
+    $ cd /path/to/src/dir
+    $ git clone  --single-branch -b ADACS https://github.com/ADACS-Australia/ADACS-SS18A-RSmith.git
+    $ cd ADACS-SS18A-RSmith
+    $ ./00boot
+    $ ./configure --with-cuda --enable-python --prefix=/path/to/dir/install
+    $ make -j 24 install
 
-However, if you want to download the latest version specifically tagged as a standardized release, try this::
+.. note:: The GPU implementation of the code is in the 'ADACS' branch of this repository.  Make sure you ahave it checked-out before compiling.
 
-    git clone --branch "`git ls-remote --tags https://github.com/gbpoole/gbpSID.git | sed 's|.*/\(.*\)$|\1|' | grep -v '\^' | sort -t. -k1,1nr -k2,2nr -k3,3nr`" https://github.com/gbpoole/gbpSID.git
+.. note:: The `--enable-cuda` option is required for GPU accelleration.
+    However, it can be omitted if an NVidia GPU is not available. 
 
-Configuring the library
------------------------
-
-Once cloned, create a build directory (for example)::
-
-    cd gbpSID
-    mkdir build
-
-Then move to that directory and run :code:`cmake` on the project directory (i.e. the directory where the file `CMakeLists.txt` is located)::
-
-    cd build
-    cmake ..
-
-Several options can be passed to :code:`cmake` to tailor *gbpSID* to your needs.  These are as follows:
-
-ADD TABLE HERE.
-
-Building the library
---------------------
-
-Once configured with :code:`cmake`, the project can be built by moving to the build directory and running the following:: 
-
-    make
-
-To install the project, specify the installation directory as follows::
-
-    make DESTDIR=<full-path-to_installation-location> install
-
-Building the documentation
---------------------------
-
-Once :code:`cmake` has been run, documentation can be built by running the following from the build directory::
-
-    make docs
-
-This will place a `.pdf` version of the documentation in the directory `docs` and an `html` version in `docs/html/docs`.
-
-Installing as a submodule
+Installing Python package
 -------------------------
+To install this Python package, it needs to be downloaded and installed as follows:
 
-ADD TEXT HERE.
+.. code-block:: console
+
+    $ cd /path/to/src/dir
+    $ git clone https://github.com/ADACS-Australia/ADACS-SS18A-RSmith-python
+    $ cd ADACS-SS18A-RSmith-python
+    $ make init
+    $ make install
+
+.. note:: This package and all needed dependancies will be installed in your current Python environment.
+    Make sure you have this properly configured before doing this.
+
