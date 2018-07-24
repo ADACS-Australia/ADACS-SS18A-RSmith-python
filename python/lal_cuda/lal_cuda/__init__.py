@@ -13,16 +13,16 @@ package_name = os.path.basename(package_root_dir)
 
 # Read the package docstring.  We do things this way to seaparate package-specific
 # content from implementation, to make it easier to update this file, for example
-path_package_docstring = os.path.join(package_root_dir,"%s.docstring"%(package_name))
-with open(path_package_docstring,"r") as fp_docstring:
-    __doc__= ''.join(fp_docstring.readlines())
+path_package_docstring = os.path.join(package_root_dir, "%s.docstring" % (package_name))
+with open(path_package_docstring, "r") as fp_docstring:
+    __doc__ = ''.join(fp_docstring.readlines())
 
 # Make sure that what's in this path takes precidence
 # over an installed version of the project
 sys.path.insert(0, package_parent_dir)
 
 # Import needed internal modules
-_log = importlib.import_module(package_name+'._internal.log')
+_log = importlib.import_module(package_name + '._internal.log')
 
 #: The library log stream (see the `_internal.log` module for more details)
 log = _log.log_stream()
@@ -42,7 +42,8 @@ def full_path_datafile(path):
 
 
 def find_in_parent_path(path_start, filename_search, check=True):
-    """Find the path to a given filename, scanning up the directory tree from the given path.  Optionally throw an error if not found.
+    """Find the path to a given filename, scanning up the directory tree from
+    the given path.  Optionally throw an error if not found.
 
     :param path_start: The path from which to start the search.
     :param filename: The filename to search for.

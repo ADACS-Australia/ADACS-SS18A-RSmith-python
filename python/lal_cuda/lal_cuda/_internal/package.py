@@ -46,7 +46,6 @@ class package:
 
         # Assemble a list of package scripts
         self.scripts = self.collect_package_scripts()
-        print("C:",self.scripts)
 
     def collect_package_files(self):
         """Generate a list of non-code files to be included in the package.

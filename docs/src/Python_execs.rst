@@ -1,14 +1,14 @@
 Python Executables
 ------------------
-lal_cuda_info
-`````````````
-Insert output from lal_cuda_info here.
+.. click:: lal_cuda.scripts.PhenomPCore_mcmc:PhenomPCore_mcmc
+   :prog: PhenomPCore_mcmc
+   :show-nested:
 
-PhenomPCore
-```````````
-Insert output from PhenomPCore here.
+.. click:: lal_cuda.scripts.PhenomPCore:PhenomPCore
+   :prog: PhenomPCore
+   :show-nested:
 
-PhenomPCore_mcmc
-````````````````
-Insert output from PhenomPCore_mcmc here.
+.. click:: lal_cuda.scripts.lal_cuda_info:lal_cuda_info
+   :prog: lal_cuda_info
+   :show-nested:
 

@@ -130,9 +130,8 @@ def PhenomPCore_mcmc(
         n_streams,
         legacy,
         data_files):
-    """This script either generates (default) or plots (with the.
-
-    --filename_plot option) an MCMC chain describing the posterior probability
+    """This script either generates (default) or plots (by adding the
+    option: --filename_plot) an MCMC chain describing the posterior probability
     of a model (gernerated from LALSuite; see below) fit to a two-file dataset
     (given by the optional positional arguments; a default dataset stored with
     the package is used by default, if no positional arguments are given).

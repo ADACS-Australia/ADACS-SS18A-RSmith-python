@@ -58,7 +58,7 @@ else:
 needs_sphinx = '1.0'
 
 # Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
+# Sphinx extensions (ie 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.doctest',
@@ -67,6 +67,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.coverage',
               'sphinx.ext.ifconfig',
               'sphinx.ext.viewcode',
+              'sphinx_click.ext',
               'breathe']
 
 # Some things that Breathe needs
@@ -144,7 +145,7 @@ html_sidebars = {'**': ['globaltoc.html', 'relations.html', 'sourcelink.html', '
 # documentation.
 html_theme_options = {'gbp_project_name': this_project.params['name']}
 
-extra_nav_links = {'Index': 'genindex.html'}
+extra_nav_links = {}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

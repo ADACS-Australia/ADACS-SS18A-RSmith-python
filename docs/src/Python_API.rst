@@ -11,3 +11,4 @@ Modules
 .. toctree::
 
    lal_cuda.SimIMRPhenomP
+   lal_cuda._internal
