@@ -74,6 +74,10 @@ extensions = ['sphinx.ext.autodoc',
 breathe_projects = {this_project.params['name']: "%s/doxygen/xml/" % (this_project.params['dir_docs_build'])}
 breathe_default_project = this_project.params['name']
 
+# Instruct autodoc to present members in the order they are 
+# in the code (as opposed to the default: alphebetical order)
+autodoc_member_order = 'bysource'
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['%s/templates' % (this_project.params['path_project_root'])]
 

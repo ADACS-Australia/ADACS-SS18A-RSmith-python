@@ -1,12 +1,12 @@
-Python API
-----------
+lal_cuda Python API
+===================
 .. automodule:: lal_cuda
     :members:
     :undoc-members:
     :show-inheritance:
 
 Modules
-``````````
+-------
 
 .. toctree::
 

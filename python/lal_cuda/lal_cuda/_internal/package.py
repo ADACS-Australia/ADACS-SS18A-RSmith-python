@@ -1,5 +1,5 @@
-import shutil
-import filecmp
+"""This module provides a `package` class for polling the metadata describing a
+Python package."""
 import os
 import sys
 import importlib
@@ -20,14 +20,16 @@ pkg = importlib.import_module(package_name)
 
 
 class package:
-    """This class provides a package object, storing package parameters which
+    """This class provides the package object, storing package parameters which
     describe the package.
-
-    Inputs: path_call; this needs to be the FULL (i.e. absolute) path to a file or directory living somewhere in the package
     """
 
     def __init__(self, path_call):
+        """
+        Generate an instance of the `package` class.
 
+        :param path_call: this needs to be the FULL (i.e. absolute) path to a file or directory living somewhere in the package
+        """
         # Scan upwards from the given path until 'setup.py' is found.  That will be the package parent directory.
         self.path_package_parent = pkg.find_in_parent_path(path_call, ".package.yml")
 
@@ -51,6 +53,7 @@ class package:
         """Generate a list of non-code files to be included in the package.
 
         By default, all files in the 'data' directory in the package root will be added.
+
         :return: a list of absolute paths.
         """
         paths = []
@@ -79,6 +82,7 @@ class package:
         """Generate a list of script files associated with this package.
 
         By default, all files in the 'scripts' directory in the package root will be added.
+
         :return: a list of absolute paths.
         """
         paths = []
@@ -115,7 +119,15 @@ class package:
 
 
 class package_file():
+    """
+    Class for reading and writing package .yml files.  Intended to be used with the `open_package_file` context manager.
+    """
+
     def __init__(self, path_package_parent):
+        """Create an instance of the `package_file` class.
+
+        :param path_package_parent: The path to the directory hosting the package's `setup.py` file.
+        """
         # File pointer
         self.fp = None
 
@@ -126,6 +138,11 @@ class package_file():
         self.filename_package_file = os.path.join(path_package_parent, self.filename_package_filename)
 
     def open(self):
+        """Open the package .yml file.  Intended to be accessed through the
+        `open_package_file` class using a `with` block.
+
+        :return: None
+        """
         try:
             self.fp = open(self.filename_package_file)
         except BaseException:
@@ -133,6 +150,10 @@ class package_file():
             raise
 
     def close(self):
+        """Close the package .yml file.
+
+        :return: None
+        """
         try:
             self.fp.close()
         except BaseException:
@@ -140,6 +161,10 @@ class package_file():
             raise
 
     def load(self):
+        """Load an opened project .yml file.
+
+        :return: None
+        """
         try:
             params_list = yaml.load(self.fp)
         except BaseException:
@@ -150,12 +175,20 @@ class package_file():
 
 
 class open_package_file:
-    """Open package file."""
+    """Context manager for reading a package .yml files.  Intended for use with a `with` block."""
 
     def __init__(self, path_call):
+        """Create an instance of the `open_package_file` context manager.
+
+        :param path_call: Context expression
+        """
         self.path_call = path_call
 
     def __enter__(self):
+        """Open the project .yml file when entering the context.
+
+        :return: file pointer
+        """
         # Open the package's copy of the file
         pkg.log.open("Opening package...")
         try:
@@ -169,5 +202,10 @@ class open_package_file:
             return self.file_in
 
     def __exit__(self, *exc):
+        """Close the package .yml file when exiting the context.
+
+        :param exc: Context expression arguments.
+        :return: False
+        """
         self.file_in.close()
         return False

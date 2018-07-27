@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.abspath(__file__))
 package_root_dir = os.path.abspath(os.path.dirname(__file__))
 
 # TODO: Find a way to infer this which works with tox (ie. without using
-# the path, which gets scramled during a virtual env install)
+# the path, which gets scrambled during a virtual env install)
 package_name = 'lal_cuda'
 
 # Make sure that what's in this path takes precidence
@@ -28,9 +28,8 @@ this_project = _prj.project(os.path.abspath(__file__))
 this_package = _pkg.package(os.path.abspath(__file__))
 
 # Print project and package meta data to stdout
-pkg.log.comment('')
-pkg.log.comment(this_project)
-pkg.log.comment(this_package)
+pkg.log.comment(this_project, blankline_before=True, blankline_after=True)
+pkg.log.comment(this_package, blankline_after=True)
 
 # This line converts the package_scripts list above into the entry point
 # list needed by Click, provided that:
@@ -47,9 +46,10 @@ for script_name_i, script_pkg_path_i in this_package.scripts:
          script_pkg_path_i,
          script_name_i))
     pkg.log.append(" %s" % (script_name_i))
-pkg.log.unhang()
+pkg.log.blankline()
 
 # Execute setup
+pkg.log.open("Running setup...", splice="setup() output")
 setup(
     name=this_package.params['name'],
     version=this_project.params['version'],
@@ -64,3 +64,4 @@ setup(
     package_data={this_package.params['name']: this_package.package_files},
     include_package_data=True
 )
+pkg.log.close("Done.")

@@ -1,13 +1,22 @@
-from __future__ import print_function
+"""This submodule handles all interaction with the LALSuite C API.
+
+It provides a class for inputs and a class for outputs and functions for
+reading/writing/comparing them.  The inputs method has a 'run' method
+for calling the C API.
+"""
+
 import numpy as np
-import sys
 import glob
 import math
 
+# Import the C API
 import lal
 import lalsimulation
+
 import lal_cuda
 
+# Define a set of default model parameters.  These are the ones in the
+# 'default' fiducial inputs file in the 'data' directory.
 chi1_default = 0.1
 chi2_default = 0.2
 m1_default = 30
@@ -23,6 +32,12 @@ fhigh_default = 80
 
 
 def to_string(inputs, outputs):
+    """Convert a paired set of inputs/outputs to an ASCII table.
+
+    :param inputs: An instance of the inputs class.
+    :param outputs: An associated instance of the outputs class.
+    :return: A list of strings.
+    """
     r_val = '# Column 01: frequency\n'
     r_val += '#        02: hp - real\n'
     r_val += '#        03: hp - imagingary\n'
@@ -34,12 +49,26 @@ def to_string(inputs, outputs):
 
 
 def to_binary(inputs, outputs, filename_label=None):
+    """Convert a paired set of inputs/outputs to binary files.
+
+    :param inputs: An instance of the inputs class.
+    :param outputs: An associated instance of the outputs class.
+    :param filename_label: An optional label for the output files.
+    :return: None
+    """
     inputs.write(filename_label, filename_label=filename_label)
     outputs.write(filename_label, filename_label=filename_label)
 
 
 def calc_frac_diff(x, y):
-    """Calculate the fractional difference between two numbers."""
+    """Calculate the fractional difference between two numbers.
+
+    If the reference value is 0 and the value to check is not, returns 1.
+
+    :param x: Value to check
+    :param y: Reference value
+    :return: Value
+    """
     if(y != 0):
         return math.fabs((x - y) / y)
     elif(x != 0.):
@@ -55,7 +84,12 @@ def calc_difference_from_reference(inputs, outputs, verbose=True):
 
     All reference inputs/outputs were computed by running the
     PhenomPCore script of this package against a version of LALSuite
-    compiled from commit "3494e18e6d".
+    compiled from the commit with hash "3494e18e6d".
+
+    :param inputs: An instance of the inputs class
+    :param outputs: An associated instance of the outputs class
+    :param verbose: Boolean controlling whether logging information is reported
+    :return: None
     """
 
     # Get a list of reference input/output files
@@ -78,10 +112,12 @@ def calc_difference_from_reference(inputs, outputs, verbose=True):
 
     # Perform check if a match has been found
     if(not filename_ref_output):
-        print("Checking could not be performed: reference data set with given inputs (%s) not found." % (inputs))
+        lal_cuda.log.warning(
+            "Checking could not be performed: reference data set with given inputs (%s) not found." %
+            (inputs))
     else:
         if(verbose):
-            print('Performing test...')
+            lal_cuda.log.open('Performing test...')
 
         # Read reference dataset's outputs
         outputs_ref = outputs.read(filename_ref_output)
@@ -115,15 +151,15 @@ def calc_difference_from_reference(inputs, outputs, verbose=True):
 
         # Report results
         if(verbose):
-            print('   Average/maximum real(hp) fractional difference: %.2e/%.2e' %
-                  (hpval_real_diff_avg, hpval_real_diff_max))
-            print('   Average/maximum imag(hp) fractional difference: %.2e/%.2e' %
-                  (hpval_imag_diff_avg, hpval_imag_diff_max))
-            print('   Average/maximum real(hc) fractional difference: %.2e/%.2e' %
-                  (hcval_real_diff_avg, hcval_real_diff_max))
-            print('   Average/maximum imag(hc) fractional difference: %.2e/%.2e' %
-                  (hcval_imag_diff_avg, hcval_imag_diff_max))
-            print("Done.")
+            lal_cuda.log.comment('   Average/maximum real(hp) fractional difference: %.2e/%.2e' %
+                                 (hpval_real_diff_avg, hpval_real_diff_max))
+            lal_cuda.log.comment('   Average/maximum imag(hp) fractional difference: %.2e/%.2e' %
+                                 (hpval_imag_diff_avg, hpval_imag_diff_max))
+            lal_cuda.log.comment('   Average/maximum real(hc) fractional difference: %.2e/%.2e' %
+                                 (hcval_real_diff_avg, hcval_real_diff_max))
+            lal_cuda.log.comment('   Average/maximum imag(hc) fractional difference: %.2e/%.2e' %
+                                 (hcval_imag_diff_avg, hcval_imag_diff_max))
+            lal_cuda.log.close("Done.")
 
         return {
             'hpval_real_diff_avg': hpval_real_diff_avg,
@@ -137,8 +173,23 @@ def calc_difference_from_reference(inputs, outputs, verbose=True):
 
 
 class outputs(object):
+    """This class manages the output (hp and hc complex arrays) from a LALSUite
+    model call.
+
+    An instance can be created using the default constructor or the
+    :func:`read` method.  An instance can be written using the
+    :func:`write` method.  Equivalence of two instances is defined by
+    the element-wise equivilance of their hp and hc arrays.
+    """
 
     def __init__(self, return_from_SimIMRPhenomPFrequencySequence=None, hp=None, hc=None):
+        """Create an instance of the outputs class.  Optionally pass complex
+        arrays hp and hc to initialize from.
+
+        :param return_from_SimIMRPhenomPFrequencySequence: The data structure returned from the LALSUite C API.
+        :param hp: Complex floating point array
+        :param hc: Complex floating point array
+        """
         if((isinstance(hp, np.ndarray)) and (isinstance(hc, np.ndarray)) and (isinstance(return_from_SimIMRPhenomPFrequencySequence, type(None)))):
             self.hp = hp
             self.hc = hc
@@ -146,11 +197,16 @@ class outputs(object):
             self.hp = return_from_SimIMRPhenomPFrequencySequence[0].data.data
             self.hc = return_from_SimIMRPhenomPFrequencySequence[1].data.data
         else:
-            print("Invalid inputs to SimIMRPhenomPFrequencySequence outputs constructor.")
+            lal_cuda.log.error("Invalid inputs to SimIMRPhenomPFrequencySequence outputs constructor.")
             exit(1)
 
     @classmethod
     def read(cls, filename_datafile_in):
+        """Create an instance of the outputs class from a binary file.
+
+        :param filename_datafile_in: Filename to read from.
+        :return: An instance of the outputs class.
+        """
         with open(lal_cuda.full_path_datafile(filename_datafile_in), "rb") as outputs_file:
             n_freqs = np.asscalar(np.fromfile(outputs_file, dtype=np.int32, count=1))
             hp = np.fromfile(outputs_file, dtype=np.complex128, count=n_freqs)
@@ -158,7 +214,13 @@ class outputs(object):
         return(cls(hp=hp, hc=hc))
 
     def write(self, filename_outputs_out, filename_label=None, verbose=True):
+        """Write the instance of the output class to a binary file.
 
+        :param filename_outputs_out: Filename to write to.
+        :param filename_label: Filename modifier.
+        :param verbose: Boolean flag indicating whether to write activity to the log.
+        :return: None
+        """
         # Set filename
         if(filename_label):
             filename_outputs_out = "outputs.dat." + filename_label
@@ -166,13 +228,13 @@ class outputs(object):
             filename_outputs_out = "outputs.dat"
 
         if(verbose):
-            print("Writing outputs to '%s'..." % (filename_outputs_out), end='')
+            lal_cuda.log.open("Writing outputs to '%s'..." % (filename_outputs_out), end='')
         with open(filename_outputs_out, "wb") as outputs_file:
             np.array([len(self.hp)], dtype=np.int32).tofile(outputs_file)
             self.hp.tofile(outputs_file)
             self.hc.tofile(outputs_file)
         if(verbose):
-            print("Done.")
+            lal_cuda.log.close("Done.")
 
     def __eq__(self, other):
         """Test for equivilance of two sets of outputs."""
@@ -204,6 +266,24 @@ class inputs(object):
                 -1],
             freqs_from_range=True,
             convert_units=True):
+        """Create an instance of the inputs class, for a given set of model
+        parameters.
+
+        :param chi1: See LALSuite documentation for a description of this model parameter.
+        :param chi2: See LALSuite documentation for a description of this model parameter.
+        :param m1: See LALSuite documentation for a description of this model parameter.
+        :param m2: See LALSuite documentation for a description of this model parameter.
+        :param chip: See LALSuite documentation for a description of this model parameter.
+        :param thetaJ: See LALSuite documentation for a description of this model parameter.
+        :param alpha0: See LALSuite documentation for a description of this model parameter.
+        :param distance: See LALSuite documentation for a description of this model parameter.
+        :param phic: See LALSuite documentation for a description of this model parameter.
+        :param fref: See LALSuite documentation for a description of this model parameter.
+        :param mode: See LALSuite documentation for a description of this model parameter.
+        :param freqs: Frequency array (either an element-wise array, or a 3-element description of range)
+        :param freqs_from_range: Set to True if the freqs describes a range, rather than an element-wise array
+        :param convert_units:
+        """
         self.chi1 = chi1
         self.chi2 = chi2
         self.m1 = m1
@@ -240,16 +320,29 @@ class inputs(object):
             self.n_freqs = len(self.freqs)
 
     def np_floats(self):
+        """A numpy array of all floating-point inputs.
+
+        :return: A numpy array of floats.
+        """
         # A numpy-array packaging of the floating-point input parameters
         return np.array([self.chi1, self.chi2, self.chip, self.thetaJ, self.m1, self.m2,
                          self.distance, self.alpha0, self.phic, self.fref], dtype=np.float64)
 
     def np_ints(self):
+        """A numpy array of all integer inputs.
+
+        :return: A numpy array of integers.
+        """
         # A numpy-array packaging of the integer input parameters
         return np.array([self.mode, self.n_freqs], dtype=np.int32)
 
     @classmethod
     def read(cls, filename_datafile_in):
+        """Create an instance of a inputs method from a binary file.
+
+        :param filename_datafile_in: Filename storing inputs.
+        :return: A object of class inputs
+        """
         with open(lal_cuda.full_path_datafile(filename_datafile_in), "rb") as inputs_file:
             # Read floating-point parameters
             inputs_np_floats = np.fromfile(inputs_file, dtype=np.float64, count=len(cls().np_floats()))
@@ -272,7 +365,13 @@ class inputs(object):
         return(cls(chi1=chi1, chi2=chi2, m1=m1, m2=m2, chip=chip, thetaJ=thetaJ, alpha0=alpha0, distance=distance, phic=phic, fref=fref, mode=mode, freqs=freqs, freqs_from_range=False, convert_units=False))
 
     def write(self, filename_inputs_out, filename_label=None, verbose=True):
+        """Write an instance of an object of class inputs to a binary file.
 
+        :param filename_inputs_out: Filename to write to
+        :param filename_label: Filename modifier.
+        :param verbose: Boolean flag indicating whether to write activity to the log.
+        :return:
+        """
         # Set filename
         if(filename_label):
             filename_inputs_out = "inputs.dat." + filename_label
@@ -280,19 +379,23 @@ class inputs(object):
             filename_inputs_out = "inputs.dat"
 
         if(verbose):
-            print("Writing inputs to '%s'..." % (filename_inputs_out), end='')
+            lal_cuda.log.open("Writing inputs to '%s'..." % (filename_inputs_out), end='')
         with open(filename_inputs_out, "wb") as inputs_file:
             self.np_floats().tofile(inputs_file)
             self.np_ints().tofile(inputs_file)
             self.freqs.tofile(inputs_file)
         if(verbose):
-            print("Done.")
+            lal_cuda.log.close("Done.")
 
     def run(self, buf=None, legacy=False):
         """Call the C-compiled model in lalsuite.
 
         If legacy is true, then assume that the compiled version of
         lalsuite we are using does not have PhenomP buffer support.
+
+        :param buf: A buffer, as generated by the ADACS version of LALSuite
+        :param legacy: True if using a version of LALSuite not compiled with the ADACS GPU buffer support
+        :return: An instance of the outputs class
         """
         if(legacy):
             return(outputs(return_from_SimIMRPhenomPFrequencySequence=lalsimulation.SimIMRPhenomPFrequencySequence(

@@ -1,4 +1,25 @@
-lal_cuda
-========
+lal_cuda Documentation
+======================
 
-This Python package was developed by `ADACS <https://adacs.org.au/>`_ for Dr. Rory Smith as part of the 2018A semester of the ADACS Software Support Program.  It provides practical examples of how to use the GPU-accellerated version of the LALSuite LALSimulation package which was the focus of development for this project.
+This Python package was developed by `ADACS <https://adacs.org.au/>`_ (developer: `G. Poole <http://www.astronomy.swin.edu.au/~gpoole/>`__) for Dr. Rory Smith as part of the 2018A semester of the ADACS Software Support Program.  It provides practical examples of how to use the GPU-accellerated version of the LALSuite LALSimulation package: the focus of development for this project.
+
+LALSuite Development Details
+============================
+
+Changes
+-------
+
+From the user's perspective, only two things have changed
+
+Results
+-------
+
+.. figure:: static/timings.deltas.png
+
+    Image caption.
+
+
+.. figure:: static/timings.speedup.png
+
+    Image caption2.
+

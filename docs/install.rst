@@ -13,7 +13,7 @@ In detail: to download the ADACS version of LALSuite (to `/path/to/src/dir`; adj
 .. code-block:: console
 
     $ cd /path/to/src/dir
-    $ git clone  --single-branch -b ADACS https://github.com/ADACS-Australia/ADACS-SS18A-RSmith.git
+    $ git clone --single-branch -b ADACS https://github.com/ADACS-Australia/ADACS-SS18A-RSmith.git
     $ cd ADACS-SS18A-RSmith
     $ ./00boot
     $ ./configure --with-cuda --enable-python --prefix=/path/to/dir/install
@@ -23,8 +23,8 @@ In detail: to download the ADACS version of LALSuite (to `/path/to/src/dir`; adj
 
 .. note:: The `--enable-cuda` option is required for GPU accelleration.  However, it can be omitted if an NVidia GPU is not available.
 
-Installing Python package
--------------------------
+Installing the lal_cuda Python package
+--------------------------------------
 To install this Python package, it needs to be downloaded and installed as follows:
 
 .. code-block:: console

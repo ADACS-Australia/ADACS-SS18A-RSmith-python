@@ -32,7 +32,7 @@ _PACKAGE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
 def full_path_datafile(path):
-    """Return the full *INSTALLED* path to a directory in the package's root
+    """Return the full *INSTALLED* path to a file in the package's data
     directory.
 
     :param path: A path relative to the package's `/data` directory
@@ -43,7 +43,8 @@ def full_path_datafile(path):
 
 def find_in_parent_path(path_start, filename_search, check=True):
     """Find the path to a given filename, scanning up the directory tree from
-    the given path.  Optionally throw an error if not found.
+    the given path_start.  Optionally throw an error (if check=True) if not
+    found.
 
     :param path_start: The path from which to start the search.
     :param filename: The filename to search for.

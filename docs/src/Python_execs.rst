@@ -1,5 +1,5 @@
-Python Executables
-------------------
+lal_cuda Executables
+====================
 .. click:: lal_cuda.scripts.PhenomPCore_mcmc:PhenomPCore_mcmc
    :prog: PhenomPCore_mcmc
    :show-nested:

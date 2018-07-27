@@ -1,3 +1,4 @@
+"""This module provides a `project` class for polling the metadata describing a gbpBuild project."""
 import shutil
 import filecmp
 import os
@@ -23,23 +24,30 @@ this_pkg = importlib.import_module(package_name)
 _pkg = importlib.import_module(package_name + '._internal.package')
 
 
-def constructor(loader, node):
+def _constructor(loader, node):
+    """
+    This function is used by a hack to make  .yml file loading safe.
+    """
     return node.value
 
 
 # This hack deals with a python2.7 error with PyYaml, See here:
 # https://stackoverflow.com/questions/27518976/how-can-i-get-pyyaml-safe-load-to-handle-python-unicode-tag
-yaml.SafeLoader.add_constructor("tag:yaml.org,2002:python/unicode", constructor)
+yaml.SafeLoader.add_constructor("tag:yaml.org,2002:python/unicode", _constructor)
 
 
 class project:
     """This class provides a project object, storing project parameters which
-    describe the project.
-
-    Inputs: path_call; this needs to be the path to a file or directory living somewhere in the project
+    describe a gbpBuild project.
     """
 
     def __init__(self, path_call):
+        """
+        Generate an instance of the `project` class.
+
+        :param path_call: this needs to be the FULL (i.e. absolute) path to a file or directory living somewhere in the package
+        """
+
         # Store the path_call
         self.path_call = path_call
 
@@ -88,7 +96,11 @@ class project:
             self.packages.append(_pkg.package(os.path.abspath(package_setup_py)))
 
     def add_packages_to_path(self):
-        """Import all the python packages belonging to this project."""
+        """
+        Import all the python packages belonging to this project.
+
+        :return: None
+        """
         dir_file = os.path.abspath(self.path_project_root)
         count = 0
         for (directory, directories, filenames) in os.walk(dir_file):
@@ -116,7 +128,17 @@ class project:
 
 
 class project_file():
+    """
+    Class for reading and writing project .yml files.  Intended to be used with the `open_project_file` context manager.
+    """
+
     def __init__(self, project):
+        """
+        Create an instance of the `project_file` class.
+
+        :param project: An instance of the `project` class
+        """
+
         # Keep a record of inputs
         self.project = project
 
@@ -128,6 +150,15 @@ class project_file():
         self.update()
 
     def update(self):
+        """
+        Update the project file stored in a Python package's path.
+
+        This needs to be done because when the package is installed in a virtual environment, for example, the
+        directory structure that the path is sitting in could be anywhere, and access to the original project
+        .yml file can not be assured.  Hence, we make sure that every package has it's own up-to-date copy.
+
+        :return: None
+        """
 
         # Check if we are inside a project repository...
         if(self.project.path_project_root):
@@ -200,6 +231,12 @@ class project_file():
                 yaml.dump(aux_params, outfile, default_flow_style=False, encoding='utf-8')
 
     def open(self):
+        """
+        Open the project .yml file.  Intended to be accessed through the
+        `open_project_file` class using a `with` block.
+
+        :return: None
+        """
         try:
             self.fp_prj = open(self.project.filename_project_file)
             self.fp_aux = open(self.project.filename_auxiliary_file)
@@ -208,6 +245,11 @@ class project_file():
             raise
 
     def close(self):
+        """
+        Close the project .yml file.
+
+        :return: None
+        """
         try:
             if(self.fp_prj is not None):
                 self.fp_prj.close()
@@ -218,6 +260,11 @@ class project_file():
             raise
 
     def load(self):
+        """
+        Load the project .yml file.
+
+        :return: None
+        """
         try:
             params_list = []
             params_list.append(yaml.safe_load(self.fp_prj))
@@ -235,12 +282,22 @@ class project_file():
 
 
 class open_project_file:
-    """Open project file."""
+    """Context manager for reading a project .yml files.  Intended for use with a `with` block."""
 
     def __init__(self, project):
+        """
+        Create an instance of the `open_project_file` context manager.
+
+        :param project: An instance of the `project` class.
+        """
         self.project = project
 
     def __enter__(self):
+        """
+        Open the project .yml file when entering the context.
+
+        :return: file pointer
+        """
         # Open the package's copy of the file
         this_pkg.log.open("Opening project...")
         try:
@@ -254,5 +311,11 @@ class open_project_file:
             return self.file_in
 
     def __exit__(self, *exc):
+        """
+        Close the project .yml file when exiting the context.
+
+        :param exc: Context expression arguments.
+        :return: False
+        """
         self.file_in.close()
         return False
