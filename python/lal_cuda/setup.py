@@ -56,6 +56,8 @@ setup(
     description=this_package.params['description'],
     author=this_project.params['author'],
     author_email=this_project.params['author_email'],
+    url=this_project.params['url'],
+    license=this_project.params['license'],
     install_requires=['Click'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
