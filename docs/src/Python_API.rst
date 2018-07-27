@@ -1,3 +1,5 @@
+.. _lal_cuda_API:
+
 lal_cuda Python API
 ===================
 .. automodule:: lal_cuda

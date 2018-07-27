@@ -1,3 +1,5 @@
+.. _lal_cuda_execs:
+
 lal_cuda Executables
 ====================
 .. click:: lal_cuda.scripts.PhenomPCore_mcmc:PhenomPCore_mcmc
