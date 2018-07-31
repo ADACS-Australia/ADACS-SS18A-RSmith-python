@@ -172,7 +172,7 @@ class package_file():
             pkg.log.error("Could not load package file {%s}." % (self.filename))
             raise
         finally:
-            return params_list
+            return {k:v for d in params_list for k, v in d.items()}
 
 
 class open_package_file:

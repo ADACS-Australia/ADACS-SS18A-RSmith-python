@@ -13,7 +13,7 @@ export ECHO_N
 
 # Extract the project name from the parent directory
 PRJ_DIR=$(PWD)
-PRJ_NAME=`grep "\- name:" .project.yml | awk '{print $$3}'`
+PRJ_NAME=`grep "name" .project.json | awk '{print $$2}' | sed -e 's/^"//' -e 's/"$$//'`
 
 # Get git hash
 GIT_HASH=$(shell git rev-parse --short HEAD)
