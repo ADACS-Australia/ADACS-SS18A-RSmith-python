@@ -6,8 +6,6 @@ import sys
 import importlib
 import json
 
-import git
-
 # Infer the name of this package from the path of __file__
 package_parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 package_root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -60,19 +58,26 @@ class project:
         # Determine if we are in a project repository.  Set to None if not.
         self.path_project_root = None
         self.filename_project_file_source = None
+        path_project_root = this_pkg.find_in_parent_path(self.path_call,'.git')
         try:
-            with git.Repo(os.path.realpath(self.path_call), search_parent_directories=True) as git_repo:
-                path_project_root_test = git_repo.git.rev_parse("--show-toplevel")
-                # Check that there is a .project.json file here.  Otherwise, we may be sitting in the path
-                # of some other repo, and not a project repo
-                if(not os.path.isfile(os.path.join(path_project_root_test, self.filename_project_filename))):
-                    raise Exception("No project file found.")
-                else:
-                    self.path_project_root = path_project_root_test
-                    self.filename_project_file_source = os.path.normpath(
-                        os.path.join(self.path_project_root, self.filename_project_filename))
+            if(not path_project_root):
+                raise Exception("No project file found.")
         except BaseException:
-            this_pkg.log.comment("Installed environment will be assumed.")
+            this_pkg.log.error("Git repository could not be found for this package.")
+        finally:
+            try:
+                with git.Repo(os.path.realpath(self.path_call), search_parent_directories=True) as git_repo:
+                    path_project_root_test = git_repo.git.rev_parse("--show-toplevel")
+                    # Check that there is a .project.json file here.  Otherwise, we may be sitting in the path
+                    # of some other repo, and not a project repo
+                    if(not os.path.isfile(os.path.join(path_project_root_test, self.filename_project_filename))):
+                        raise Exception("No project file found.")
+                    else:
+                        self.path_project_root = path_project_root_test
+                        self.filename_project_file_source = os.path.normpath(
+                            os.path.join(self.path_project_root, self.filename_project_filename))
+            except BaseException:
+                this_pkg.log.comment("Installed environment will be assumed.")
 
         # Read the project file
         with open_project_file(self) as file_in:

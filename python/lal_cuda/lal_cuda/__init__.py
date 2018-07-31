@@ -59,7 +59,7 @@ def find_in_parent_path(path_start, filename_search, check=True):
     # Scan upwards until we find the file or run out of path
     while(True):
         filename_test = os.path.join(cur_dir, filename_search)
-        if(os.path.isfile(filename_test)):
+        if(os.path.isfile(filename_test) or os.path.isdir(filename_test)):
             path_result = cur_dir
             break
         elif (cur_dir == os.sep):
