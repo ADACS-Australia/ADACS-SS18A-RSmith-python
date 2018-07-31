@@ -14,8 +14,8 @@ __pycache__
 .idea
 
 # Temporary install products
-.project.yml
-.project_aux.yml
+.project.json
+.project_aux.json
 
 # .vi swap files
 *.*.swp
