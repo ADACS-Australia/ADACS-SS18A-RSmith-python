@@ -10,9 +10,23 @@ respectively.
 # For legacy-Python compatability
 from __future__ import print_function
 
+import os
 import sys
+import importlib
 import time
 import datetime
+
+# Infer the name of this package from the path of __file__
+package_parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+package_root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+package_name = os.path.basename(package_root_dir)
+
+# Make sure that what's in this path takes precidence
+# over an installed version of the project
+sys.path.insert(0, package_parent_dir)
+
+# Import needed internal modules
+_internal = importlib.import_module(package_name + '._internal')
 
 intervals = (
     ('weeks', 604800),  # 60 * 60 * 24 * 7
@@ -133,7 +147,6 @@ class log_stream(object):
             self._splice_line(splice, False)
 
         # Generate message
-        # print("TEST:",msg,n_lines)
         if(msg is not None):
             if(time_elapsed):
                 msg_time = " (%s)" % (format_time(dt))
@@ -255,7 +268,7 @@ class log_stream(object):
         else:
             msg += 'end '
         n_msg = len(msg)
-        n_lead = (n_splice - len(msg)) / 2
+        n_lead = int((n_splice - len(msg)) / 2)
         if (n_lead <= 0):
             n_splice = n_msg + 2 * n_lead_min
             n_lead = n_lead_min
@@ -281,7 +294,7 @@ class log_stream(object):
             self._unhang()
 
         # This will fail for strings but pass for lists, etc.
-        if(hasattr(msg, '__iter__')):
+        if(_internal.is_nonstring_iterable(msg)):
             if(overwrite):
                 self.error("Log stream overwriting not permitted for iterables.")
             if(not iterables_allowed):

@@ -32,7 +32,7 @@ _build
 
 # Scratch directories/files
 .tests
-.project_aux.yml
+.project_aux.json
 
 #Miscillaneous
 .install*
