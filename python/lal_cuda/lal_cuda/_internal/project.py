@@ -1,4 +1,5 @@
-"""This module provides a `project` class for polling the metadata describing a gbpBuild project."""
+"""This module provides a `project` class for polling the metadata describing a
+gbpBuild project."""
 import shutil
 import filecmp
 import os
@@ -25,12 +26,10 @@ _pkg = importlib.import_module(package_name + '._internal.package')
 
 class project:
     """This class provides a project object, storing project parameters which
-    describe a gbpBuild project.
-    """
+    describe a gbpBuild project."""
 
     def __init__(self, path_call):
-        """
-        Generate an instance of the `project` class.
+        """Generate an instance of the `project` class.
 
         :param path_call: this needs to be the FULL (i.e. absolute) path to a file or directory living somewhere in the package
         """
@@ -49,7 +48,7 @@ class project:
         # Assume that path we have been passed is a package directory and look for
         # 'setup.py' as the place where the project files should be.
         if(not path_project_file):
-            path_project_file = this_pkg.find_in_parent_path(self.path_call, 'setup.py', check=False) 
+            path_project_file = this_pkg.find_in_parent_path(self.path_call, 'setup.py', check=False)
 
         if(path_project_file is not None):
             self.filename_project_file = os.path.join(path_project_file, self.filename_project_filename)
@@ -65,7 +64,7 @@ class project:
         # Determine if we are in a project repository.  Set to None if not.
         self.path_project_root = None
         self.filename_project_file_source = None
-        path_project_root_test = this_pkg.find_in_parent_path(self.path_call,'.git',check=False)
+        path_project_root_test = this_pkg.find_in_parent_path(self.path_call, '.git', check=False)
         if(not path_project_root_test):
             this_pkg.log.comment("Installed environment will be assumed.")
         # If we have found a repo, check that there is a .project.json file.  Fail if not.
@@ -91,8 +90,7 @@ class project:
             self.packages.append(_pkg.package(os.path.abspath(package_setup_py)))
 
     def add_packages_to_path(self):
-        """
-        Import all the python packages belonging to this project.
+        """Import all the python packages belonging to this project.
 
         :return: None
         """
@@ -123,13 +121,13 @@ class project:
 
 
 class project_file():
-    """
-    Class for reading and writing project .json files.  Intended to be used with the `open_project_file` context manager.
+    """Class for reading and writing project .json files.
+
+    Intended to be used with the `open_project_file` context manager.
     """
 
     def __init__(self, project):
-        """
-        Create an instance of the `project_file` class.
+        """Create an instance of the `project_file` class.
 
         :param project: An instance of the `project` class
         """
@@ -145,8 +143,7 @@ class project_file():
         self.update()
 
     def update(self):
-        """
-        Update the project file stored in a Python package's path.
+        """Update the project file stored in a Python package's path.
 
         This needs to be done because when the package is installed in a virtual environment, for example, the
         directory structure that the path is sitting in could be anywhere, and access to the original project
@@ -225,8 +222,7 @@ class project_file():
                 json.dump(aux_params, outfile, indent=3)
 
     def open(self):
-        """
-        Open the project .json file.  Intended to be accessed through the
+        """Open the project .json file.  Intended to be accessed through the
         `open_project_file` class using a `with` block.
 
         :return: None
@@ -239,8 +235,7 @@ class project_file():
             raise
 
     def close(self):
-        """
-        Close the project .json file.
+        """Close the project .json file.
 
         :return: None
         """
@@ -254,8 +249,7 @@ class project_file():
             raise
 
     def load(self):
-        """
-        Load the project .json file.
+        """Load the project .json file.
 
         :return: None
         """
@@ -265,27 +259,28 @@ class project_file():
         try:
             # Add a few extra things
             params_list.extend([{'path_project_root': self.project.path_project_root}])
-        except:
+        except BaseException:
             this_pkg.log.error("Could not load project file {%s}." % (self.project.filename))
             raise
         finally:
-            return {k:v for d in params_list for k, v in d.items()}
+            return {k: v for d in params_list for k, v in d.items()}
 
 
 class open_project_file:
-    """Context manager for reading a project .json files.  Intended for use with a `with` block."""
+    """Context manager for reading a project .json files.
+
+    Intended for use with a `with` block.
+    """
 
     def __init__(self, project):
-        """
-        Create an instance of the `open_project_file` context manager.
+        """Create an instance of the `open_project_file` context manager.
 
         :param project: An instance of the `project` class.
         """
         self.project = project
 
     def __enter__(self):
-        """
-        Open the project .json file when entering the context.
+        """Open the project .json file when entering the context.
 
         :return: file pointer
         """
@@ -302,8 +297,7 @@ class open_project_file:
             return self.file_in
 
     def __exit__(self, *exc):
-        """
-        Close the project .json file when exiting the context.
+        """Close the project .json file when exiting the context.
 
         :param exc: Context expression arguments.
         :return: False

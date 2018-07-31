@@ -15,18 +15,16 @@ package_name = os.path.basename(package_root_dir)
 sys.path.insert(0, package_parent_dir)
 
 # Import needed internal modules
-_internal = importlib.import_module(package_name+'._internal')
+_internal = importlib.import_module(package_name + '._internal')
 pkg = importlib.import_module(package_name)
 
 
 class package:
     """This class provides the package object, storing package parameters which
-    describe the package.
-    """
+    describe the package."""
 
     def __init__(self, path_call):
-        """
-        Generate an instance of the `package` class.
+        """Generate an instance of the `package` class.
 
         :param path_call: this needs to be the FULL (i.e. absolute) path to a file or directory living somewhere in the package
         """
@@ -120,8 +118,9 @@ class package:
 
 
 class package_file():
-    """
-    Class for reading and writing package .json files.  Intended to be used with the `open_package_file` context manager.
+    """Class for reading and writing package .json files.
+
+    Intended to be used with the `open_package_file` context manager.
     """
 
     def __init__(self, path_package_parent):
@@ -167,16 +166,19 @@ class package_file():
         :return: None
         """
         try:
-            params_list = json.load(self.fp,object_hook=_internal.ascii_encode_dict)
+            params_list = json.load(self.fp, object_hook=_internal.ascii_encode_dict)
         except BaseException:
             pkg.log.error("Could not load package file {%s}." % (self.filename))
             raise
         finally:
-            return {k:v for d in params_list for k, v in d.items()}
+            return {k: v for d in params_list for k, v in d.items()}
 
 
 class open_package_file:
-    """Context manager for reading a package .json files.  Intended for use with a `with` block."""
+    """Context manager for reading a package .json files.
+
+    Intended for use with a `with` block.
+    """
 
     def __init__(self, path_call):
         """Create an instance of the `open_package_file` context manager.
