@@ -69,6 +69,6 @@ def find_in_parent_path(path_start, filename_search, check=True):
 
     # Check if the file has been found
     if(check and path_result is None):
-        SID.log.error("Could not find {%s} in parent directories of path {%s}." % (filename_search, path_start))
+        log.error("Could not find {%s} in parent directories of path {%s}." % (filename_search, path_start))
 
     return path_result

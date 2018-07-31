@@ -4,8 +4,8 @@ import filecmp
 import os
 import sys
 import importlib
+import json
 
-import yaml
 import git
 
 # Infer the name of this package from the path of __file__
@@ -21,19 +21,8 @@ sys.path.insert(0, package_parent_dir)
 this_pkg = importlib.import_module(package_name)
 
 # Import the internal package-helper package
+_internal = importlib.import_module(package_name + '._internal')
 _pkg = importlib.import_module(package_name + '._internal.package')
-
-
-def _constructor(loader, node):
-    """
-    This function is used by a hack to make  .yml file loading safe.
-    """
-    return node.value
-
-
-# This hack deals with a python2.7 error with PyYaml, See here:
-# https://stackoverflow.com/questions/27518976/how-can-i-get-pyyaml-safe-load-to-handle-python-unicode-tag
-yaml.SafeLoader.add_constructor("tag:yaml.org,2002:python/unicode", _constructor)
 
 
 class project:
@@ -52,8 +41,8 @@ class project:
         self.path_call = path_call
 
         # Assume this filename for the project file
-        self.filename_project_filename = '.project.yml'
-        self.filename_auxiliary_filename = '.project_aux.yml'
+        self.filename_project_filename = '.project.json'
+        self.filename_auxiliary_filename = '.project_aux.json'
 
         # Set the filename of the package copy of the project file
         package_root = this_pkg.find_in_parent_path(self.path_call, self.filename_project_filename)
@@ -74,7 +63,7 @@ class project:
         try:
             with git.Repo(os.path.realpath(self.path_call), search_parent_directories=True) as git_repo:
                 path_project_root_test = git_repo.git.rev_parse("--show-toplevel")
-                # Check that there is a .project.yml file here.  Otherwise, we may be sitting in the path
+                # Check that there is a .project.json file here.  Otherwise, we may be sitting in the path
                 # of some other repo, and not a project repo
                 if(not os.path.isfile(os.path.join(path_project_root_test, self.filename_project_filename))):
                     raise Exception("No project file found.")
@@ -129,7 +118,7 @@ class project:
 
 class project_file():
     """
-    Class for reading and writing project .yml files.  Intended to be used with the `open_project_file` context manager.
+    Class for reading and writing project .json files.  Intended to be used with the `open_project_file` context manager.
     """
 
     def __init__(self, project):
@@ -155,7 +144,7 @@ class project_file():
 
         This needs to be done because when the package is installed in a virtual environment, for example, the
         directory structure that the path is sitting in could be anywhere, and access to the original project
-        .yml file can not be assured.  Hence, we make sure that every package has it's own up-to-date copy.
+        .json file can not be assured.  Hence, we make sure that every package has it's own up-to-date copy.
 
         :return: None
         """
@@ -227,12 +216,11 @@ class project_file():
 
             # Write auxiliary parameters file
             with open(self.project.filename_auxiliary_file, 'w') as outfile:
-                # UTF-8 to ensure compatability between py27 and py3X
-                yaml.dump(aux_params, outfile, default_flow_style=False, encoding='utf-8')
+                json.dump(aux_params, outfile, indent=3)
 
     def open(self):
         """
-        Open the project .yml file.  Intended to be accessed through the
+        Open the project .json file.  Intended to be accessed through the
         `open_project_file` class using a `with` block.
 
         :return: None
@@ -246,7 +234,7 @@ class project_file():
 
     def close(self):
         """
-        Close the project .yml file.
+        Close the project .json file.
 
         :return: None
         """
@@ -261,28 +249,25 @@ class project_file():
 
     def load(self):
         """
-        Load the project .yml file.
+        Load the project .json file.
 
         :return: None
         """
+        params_list = []
+        params_list.extend(json.load(self.fp_prj, object_hook=_internal.ascii_encode_dict))
+        params_list.extend(json.load(self.fp_aux, object_hook=_internal.ascii_encode_dict))
         try:
-            params_list = []
-            params_list.append(yaml.safe_load(self.fp_prj))
-            params_list.append(yaml.safe_load(self.fp_aux))
             # Add a few extra things
-            params_list.append([{'path_project_root': self.project.path_project_root}])
-        except BaseException:
+            params_list.extend([{'path_project_root': self.project.path_project_root}])
+        except:
             this_pkg.log.error("Could not load project file {%s}." % (self.project.filename))
             raise
         finally:
-            result = dict()
-            for params in params_list:
-                result.update({k: v for d in params for k, v in d.items()})
-            return result
+            return {k:v for d in params_list for k, v in d.items()}
 
 
 class open_project_file:
-    """Context manager for reading a project .yml files.  Intended for use with a `with` block."""
+    """Context manager for reading a project .json files.  Intended for use with a `with` block."""
 
     def __init__(self, project):
         """
@@ -294,7 +279,7 @@ class open_project_file:
 
     def __enter__(self):
         """
-        Open the project .yml file when entering the context.
+        Open the project .json file when entering the context.
 
         :return: file pointer
         """
@@ -312,10 +297,11 @@ class open_project_file:
 
     def __exit__(self, *exc):
         """
-        Close the project .yml file when exiting the context.
+        Close the project .json file when exiting the context.
 
         :param exc: Context expression arguments.
         :return: False
         """
-        self.file_in.close()
+        if(self.file_in):
+            self.file_in.close()
         return False

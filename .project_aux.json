@@ -1,0 +1,31 @@
+[
+   {
+      "dir_docs": "/fred/oz007/ADACS/rsmith/lal_cuda/docs"
+   }, 
+   {
+      "dir_docs_api_src": "/fred/oz007/ADACS/rsmith/lal_cuda/docs/src"
+   }, 
+   {
+      "dir_docs_build": "/fred/oz007/ADACS/rsmith/lal_cuda/docs/_build"
+   }, 
+   {
+      "dir_python": "/fred/oz007/ADACS/rsmith/lal_cuda/python"
+   }, 
+   {
+      "python_packages": [
+         "lal_cuda"
+      ]
+   }, 
+   {
+      "is_C_project": false
+   }, 
+   {
+      "is_Python_project": true
+   }, 
+   {
+      "version": "0.1.0"
+   }, 
+   {
+      "release": "0.1.0"
+   }
+]

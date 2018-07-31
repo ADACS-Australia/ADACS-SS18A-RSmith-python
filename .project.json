@@ -1,0 +1,20 @@
+[
+   {
+      "name": "lal_cuda"
+   },
+   {
+      "author": "Gregory B. Poole"
+   },
+   {
+      "author_email": "gbpoole@gmail.com"
+   },
+   {
+      "description": "Python support for the ADACS branch of LALSuite."
+   },
+   {
+      "url": "https://adacs.org.au/"
+   },
+   {
+      "license": "MIT"
+   }
+]
