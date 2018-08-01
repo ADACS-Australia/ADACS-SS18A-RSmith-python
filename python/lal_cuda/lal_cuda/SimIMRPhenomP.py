@@ -9,11 +9,11 @@ import numpy as np
 import glob
 import math
 
-# Import the C API
-import lal
-import lalsimulation
-
 import lal_cuda
+
+# Generate mocks for these if we are building for RTD
+lal           = lal_cuda.import_mock_RTD("lal")
+lalsimulation = lal_cuda.import_mock_RTD("lalsimulation")
 
 # Define a set of default model parameters.  These are the ones in the
 # 'default' fiducial inputs file in the 'data' directory.

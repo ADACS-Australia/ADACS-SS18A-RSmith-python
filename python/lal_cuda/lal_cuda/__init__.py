@@ -2,6 +2,11 @@ import os
 import sys
 import importlib
 
+if sys.version_info >= (3, 3):
+    from unittest.mock import MagicMock
+else:
+    from mock import MagicMock
+
 # Make sure that what's in this path takes precidence
 # over an installed version of the project
 sys.path.insert(0, os.path.join(os.path.abspath(__file__), '..'))
@@ -30,6 +35,24 @@ log = _log.log_stream()
 #: The absolute path to the module root path
 _PACKAGE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+        return MagicMock()
+
+def import_mock_RTD(package_name):
+    """
+    Import a package unless a Readthedocs environment is detected.  In that case, create a mock of the packge.  
+    Useful for cases where a package is not available during a RTD build, but we want the build to proceed without error.
+
+    :param package_name: The name of the package to import or mock.
+    :return: The imported package object.
+    """
+    if(not os.environ.get('READTHEDOCS') == 'True'):
+        return importlib.import_module(package_name)
+    else:
+        log.comment("Using a mock for package {%s}."%(package_name))
+        return Mock()
 
 def full_path_datafile(path):
     """Return the full *INSTALLED* path to a file in the package's data

@@ -74,9 +74,6 @@ extensions = ['sphinx.ext.autodoc',
 breathe_projects = {this_project.params['name']: "%s/doxygen/xml/" % (this_project.params['dir_docs_build'])}
 breathe_default_project = this_project.params['name']
 
-# Needed to prevent a build error on READTHEDOCS
-autodoc_mock_imports = ['numpy', 'matplotlib', 'matplotlib.pyplot', 'lal', 'lalsimulation']
-
 # Instruct autodoc to present members in the order they are 
 # in the code (as opposed to the default: alphebetical order)
 autodoc_member_order = 'bysource'

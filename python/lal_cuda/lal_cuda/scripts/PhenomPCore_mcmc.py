@@ -1,5 +1,4 @@
 import numpy as np
-import pylab as plt
 import os
 import sys
 import click
@@ -9,9 +8,12 @@ import pickle
 from scipy.misc import logsumexp
 from chainconsumer import ChainConsumer
 
-import lal
-import lalsimulation
 import lal_cuda
+
+# Generate mocks for these if we are building for RTD
+plt           = lal_cuda.import_mock_RTD("pylab")
+lal           = lal_cuda.import_mock_RTD("lal")
+lalsimulation = lal_cuda.import_mock_RTD("lalsimulation")
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
