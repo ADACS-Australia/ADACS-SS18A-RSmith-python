@@ -11,7 +11,6 @@ from scipy.misc import logsumexp
 import lal_cuda
 
 # Generate mocks for these if we are building for RTD
-_tkinter      = lal_cuda.import_mock_RTD("_tkinter",RTD_only=True)
 lal           = lal_cuda.import_mock_RTD("lal")
 lalsimulation = lal_cuda.import_mock_RTD("lalsimulation")
 
