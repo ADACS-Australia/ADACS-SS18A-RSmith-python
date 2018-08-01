@@ -222,3 +222,10 @@ texinfo_documents = [
      author, this_project.params['name'], this_project.params['description'],
      'Miscellaneous'),
 ]
+
+# Do this to avoid an import error
+# See: https://stackoverflow.com/questions/45484077/sphinx-autodoc-on-readthedocs-importerror-no-module-named-tkinter
+# Unfortunately, the 'autodoc_mock_imports' solution does not always work,
+# because it does not fix the same problem occuring within sphinx_click.ext
+import matplotlib
+matplotlib.use('agg')
