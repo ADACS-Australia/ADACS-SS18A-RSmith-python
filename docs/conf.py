@@ -75,11 +75,15 @@ breathe_projects = {this_project.params['name']: "%s/doxygen/xml/" % (this_proje
 breathe_default_project = this_project.params['name']
 
 # Needed to prevent a build error on READTHEDOCS
-autodoc_mock_imports = ['_tkinter','lal']
+autodoc_mock_imports = ['numpy', 'matplotlib', 'matplotlib.pyplot', 'lal', 'lalsimulation']
 
 # Instruct autodoc to present members in the order they are 
 # in the code (as opposed to the default: alphebetical order)
 autodoc_member_order = 'bysource'
+
+# Instruct autodoc to display both a class' 
+# docstring, and it's '__init__' method's.
+autoclass_content = 'both'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['%s/templates' % (this_project.params['path_project_root'])]
