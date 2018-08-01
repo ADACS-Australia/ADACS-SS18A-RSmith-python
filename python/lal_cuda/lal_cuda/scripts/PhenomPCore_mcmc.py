@@ -4,16 +4,19 @@ import sys
 import click
 import emcee
 import pickle
+import pylab as plt
 
 from scipy.misc import logsumexp
-from chainconsumer import ChainConsumer
 
 import lal_cuda
 
 # Generate mocks for these if we are building for RTD
-plt           = lal_cuda.import_mock_RTD("pylab")
+_tkinter      = lal_cuda.import_mock_RTD("_tkinter",RTD_only=True)
 lal           = lal_cuda.import_mock_RTD("lal")
 lalsimulation = lal_cuda.import_mock_RTD("lalsimulation")
+
+# Make sure this is after the `_tkinter` import above
+from chainconsumer import ChainConsumer
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 

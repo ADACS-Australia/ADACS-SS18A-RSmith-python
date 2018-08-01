@@ -40,15 +40,16 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
         return MagicMock()
 
-def import_mock_RTD(package_name):
+def import_mock_RTD(package_name,RTD_only=False):
     """
     Import a package unless a Readthedocs environment is detected.  In that case, create a mock of the packge.  
     Useful for cases where a package is not available during a RTD build, but we want the build to proceed without error.
 
     :param package_name: The name of the package to import or mock.
+    :param RTD_only: A boolean flag indicating whether this import should only happen for RTD mocks.
     :return: The imported package object.
     """
-    if(not os.environ.get('READTHEDOCS') == 'True'):
+    if(not os.environ.get('READTHEDOCS') == 'True' and not RTD_only):
         return importlib.import_module(package_name)
     else:
         log.comment("Using a mock for package {%s}."%(package_name))
