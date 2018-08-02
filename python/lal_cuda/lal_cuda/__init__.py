@@ -36,7 +36,7 @@ log = _log.log_stream()
 _PACKAGE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
-class Mock(MagicMock):
+class _mock_module(MagicMock):
     """This class is used to generate mock modules in cases where we don't have
     access to the module-proper.
 
@@ -54,14 +54,13 @@ def import_mock_RTD(package_name):
     error.
 
     :param package_name: The name of the package to import or mock.
-    :param RTD_only: A boolean flag indicating whether this import should only happen for RTD mocks.
-    :return: The imported package object.
+    :return: The imported package or mock-package object.
     """
     if(not os.environ.get('READTHEDOCS') == 'True'):
         return importlib.import_module(package_name)
     else:
         log.comment("Using a mock for package {%s}." % (package_name))
-        return Mock()
+        return _mock_module()
 
 
 def full_path_datafile(path):
