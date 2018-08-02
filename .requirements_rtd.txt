@@ -40,4 +40,4 @@ autopep8==1.3.5
 docformatter==1.0
 sphinx-click==1.3.0
 
--e git://github.com/gbpoole/gbpBuild.git@88d7b913c6a4a43ef12d476ad68b32a8c3ee6af3#egg=gbpBuild&subdirectory=python/gbpBuild
+-e git://github.com/gbpoole/gbpBuild.git@a109c0985856cc4d82d769fb421dede9cd15a15c#egg=gbpBuild&subdirectory=python/gbpBuild

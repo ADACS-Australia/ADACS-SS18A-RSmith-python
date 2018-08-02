@@ -1,4 +1,4 @@
-.. _lal_cuda_execs:
+.. _Python_execs:
 
 lal_cuda Executables
 ====================

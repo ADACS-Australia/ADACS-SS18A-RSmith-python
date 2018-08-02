@@ -41,7 +41,7 @@ The ADACS implementation of GPU accelleration for `SimIMRPhenomPFrequencySequenc
 The `lal_cuda` Python package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A Python package (called `lal_cuda`) for running regression tests on the LALSuite routines discussed above -- and for illustrating their use via Python -- has been developed.  See the :ref:`lal_cuda_API` and :ref:`lal_cuda_execs` sections for an account of it's API and of the executable scripts it provides.
+A Python package (called `lal_cuda`) for running regression tests on the LALSuite routines discussed above -- and for illustrating their use via Python -- has been developed.  See the :ref:`Python_API` and :ref:`Python_execs` sections for an account of it's API and of the executable scripts it provides.
 
 Performance gains
 -----------------

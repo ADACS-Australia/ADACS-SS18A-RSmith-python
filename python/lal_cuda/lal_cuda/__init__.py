@@ -29,31 +29,40 @@ sys.path.insert(0, package_parent_dir)
 # Import needed internal modules
 _log = importlib.import_module(package_name + '._internal.log')
 
-#: The library log stream (see the `_internal.log` module for more details)
+#: The library log stream (see the :py:mod:`._internal.log` module for more details)
 log = _log.log_stream()
 
 #: The absolute path to the module root path
 _PACKAGE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
+
 class Mock(MagicMock):
+    """This class is used to generate mock modules in cases where we don't have
+    access to the module-proper.
+
+    This is particularly useful for RTD builds.
+    """
     @classmethod
     def __getattr__(cls, name):
         return MagicMock()
 
-def import_mock_RTD(package_name,RTD_only=False):
-    """
-    Import a package unless a Readthedocs environment is detected.  In that case, create a mock of the packge.  
-    Useful for cases where a package is not available during a RTD build, but we want the build to proceed without error.
+
+def import_mock_RTD(package_name):
+    """Import a package unless a Readthedocs environment is detected.  In that
+    case, create a mock of the packge. Useful for cases where a package is not
+    available during a RTD build, but we want the build to proceed without
+    error.
 
     :param package_name: The name of the package to import or mock.
     :param RTD_only: A boolean flag indicating whether this import should only happen for RTD mocks.
     :return: The imported package object.
     """
-    if(not os.environ.get('READTHEDOCS') == 'True' and not RTD_only):
+    if(not os.environ.get('READTHEDOCS') == 'True'):
         return importlib.import_module(package_name)
     else:
-        log.comment("Using a mock for package {%s}."%(package_name))
+        log.comment("Using a mock for package {%s}." % (package_name))
         return Mock()
+
 
 def full_path_datafile(path):
     """Return the full *INSTALLED* path to a file in the package's data

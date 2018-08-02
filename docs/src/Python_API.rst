@@ -1,4 +1,4 @@
-.. _lal_cuda_API:
+.. _Python_API:
 
 lal_cuda Python API
 ===================

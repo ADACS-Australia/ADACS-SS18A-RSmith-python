@@ -8,7 +8,7 @@ import lal_cuda
 import lal_cuda.SimIMRPhenomP as model
 
 # Generate mocks for these if we are building for RTD
-lal           = lal_cuda.import_mock_RTD("lal")
+lal = lal_cuda.import_mock_RTD("lal")
 lalsimulation = lal_cuda.import_mock_RTD("lalsimulation")
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
