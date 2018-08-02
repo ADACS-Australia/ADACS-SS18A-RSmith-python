@@ -96,7 +96,7 @@ else
 endif
 	@$(ECHO) "Done."
 
-# Check Python formating against PEP8 (exception: max line lengths are 120)
+# Check Python formatting against PEP8 (exception: max line lengths are 120)
 .PHONY: lint-check-py
 lint-check-py: $(addsuffix .LINT-CHECK,$(PKGS))
 $(addsuffix .LINT-CHECK,$(PKGS)):

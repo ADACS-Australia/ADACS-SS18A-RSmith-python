@@ -51,7 +51,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     show_default=True,
     help='Model parameter: phic')
 @click.option('--fref', type=float, default=30, show_default=True, help='Model parameter: fref')
-@click.option('--use_buffer/--no-use_buffer', default=True, show_default=True, help='Use a buffer for accelleration.')
+@click.option('--use_buffer/--no-use_buffer', default=True, show_default=True, help='Use a buffer for acceleration.')
 @click.option('--n_streams', type=int, default=0, show_default=True, help='Number of asynchronous streams.')
 @click.option('--legacy/--no-legacy', default=False, show_default=True,
               help='Specify this option if a legacy version of LALSuite (without buffer support) is being used.')

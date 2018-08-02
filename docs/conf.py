@@ -75,7 +75,7 @@ breathe_projects = {this_project.params['name']: "%s/doxygen/xml/" % (this_proje
 breathe_default_project = this_project.params['name']
 
 # Instruct autodoc to present members in the order they are 
-# in the code (as opposed to the default: alphebetical order)
+# in the code (as opposed to the default: alphabetical order)
 autodoc_member_order = 'bysource'
 
 # Instruct autodoc to display both a class' 
@@ -99,7 +99,7 @@ master_doc = 'index'
 
 # Exclude the source files in the docs directory
 # (we've copied them to the build directory and
-#  dont want to double count them.)
+#  don't want to double count them.)
 #exclude_patterns = '*.rst'
 
 # General information about the project.
@@ -226,6 +226,6 @@ texinfo_documents = [
 # Do this to avoid an import error
 # See: https://stackoverflow.com/questions/45484077/sphinx-autodoc-on-readthedocs-importerror-no-module-named-tkinter
 # Unfortunately, the 'autodoc_mock_imports' solution does not always work,
-# because it does not fix the same problem occuring within sphinx_click.ext
+# because it does not fix the same problem occurring within sphinx_click.ext
 import matplotlib
 matplotlib.use('agg')

@@ -1,4 +1,4 @@
-"""This module provides a `package` class for polling the metadata describing a
+"""This module provides a `package` class for polling the meta data describing a
 Python package."""
 import os
 import sys
@@ -10,7 +10,7 @@ package_parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..
 package_root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 package_name = os.path.basename(package_root_dir)
 
-# Make sure that what's in this path takes precidence
+# Make sure that what's in this path takes precedence
 # over an installed version of the project
 sys.path.insert(0, package_parent_dir)
 

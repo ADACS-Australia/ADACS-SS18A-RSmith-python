@@ -7,7 +7,7 @@ if sys.version_info >= (3, 3):
 else:
     from mock import MagicMock
 
-# Make sure that what's in this path takes precidence
+# Make sure that what's in this path takes precedence
 # over an installed version of the project
 sys.path.insert(0, os.path.join(os.path.abspath(__file__), '..'))
 
@@ -16,13 +16,13 @@ package_parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..
 package_root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 package_name = os.path.basename(package_root_dir)
 
-# Read the package docstring.  We do things this way to seaparate package-specific
+# Read the package docstring.  We do things this way to separate package-specific
 # content from implementation, to make it easier to update this file, for example
 path_package_docstring = os.path.join(package_root_dir, "%s.docstring" % (package_name))
 with open(path_package_docstring, "r") as fp_docstring:
     __doc__ = ''.join(fp_docstring.readlines())
 
-# Make sure that what's in this path takes precidence
+# Make sure that what's in this path takes precedence
 # over an installed version of the project
 sys.path.insert(0, package_parent_dir)
 
@@ -49,7 +49,7 @@ class _mock_module(MagicMock):
 
 def import_mock_RTD(package_name):
     """Import a package unless a Readthedocs environment is detected.  In that
-    case, create a mock of the packge. Useful for cases where a package is not
+    case, create a mock of the package. Useful for cases where a package is not
     available during a RTD build, but we want the build to proceed without
     error.
 

@@ -40,7 +40,7 @@ def to_string(inputs, outputs):
     """
     r_val = '# Column 01: frequency\n'
     r_val += '#        02: hp - real\n'
-    r_val += '#        03: hp - imagingary\n'
+    r_val += '#        03: hp - imaginary\n'
     r_val += '#        04: hc - real\n'
     r_val += '#        05: hc - imaginary\n'
     for f_i, hp_i, hc_i in zip(inputs.freqs, outputs.hp, outputs.hc):
@@ -179,7 +179,7 @@ class outputs(object):
     An instance can be created using the default constructor or the
     :func:`read` method.  An instance can be written using the
     :func:`write` method.  Equivalence of two instances is defined by
-    the element-wise equivilance of their hp and hc arrays.
+    the element-wise equivalence of their hp and hc arrays.
     """
 
     def __init__(self, return_from_SimIMRPhenomPFrequencySequence=None, hp=None, hc=None):
@@ -237,7 +237,7 @@ class outputs(object):
             lal_cuda.log.close("Done.")
 
     def __eq__(self, other):
-        """Test for equivilance of two sets of outputs."""
+        """Test for equivalence of two sets of outputs."""
         return np.array_equal(self.hp, other.hp) and np.array_equal(self.hc, other.hc)
 
     def __ne__(self, other):
@@ -436,7 +436,7 @@ class inputs(object):
             self.chi1, self.chi2, self.m1 / lal.lal.MSUN_SI, self.m2 / lal.lal.MSUN_SI, self.distance / (lal.lal.PC_SI * 100 * 1e6), self.thetaJ, self.alpha0, self.chip, self.phic, self.fref, self.mode, self.freqs[0], self.freqs[-1])
 
     def __eq__(self, other):
-        """Test for equivilance of two sets of inputs."""
+        """Test for equivalence of two sets of inputs."""
         return np.array_equal(
             self.np_floats(),
             other.np_floats()) and np.array_equal(

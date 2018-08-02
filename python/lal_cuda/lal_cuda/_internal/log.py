@@ -7,7 +7,7 @@ Formatting is organized by indenting levels which can be
 increased/decreased by calling the open/close methods of the stream
 respectively.
 """
-# For legacy-Python compatability
+# For legacy-Python compatibility
 from __future__ import print_function
 
 import os
@@ -21,7 +21,7 @@ package_parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..
 package_root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 package_name = os.path.basename(package_root_dir)
 
-# Make sure that what's in this path takes precidence
+# Make sure that what's in this path takes precedence
 # over an installed version of the project
 sys.path.insert(0, package_parent_dir)
 
@@ -38,7 +38,7 @@ intervals = (
 
 
 def format_time(seconds, granularity=None):
-    """Create a nice ascii representation of a time interval, given in seconds.
+    """Create a nice ASCII representation of a time interval, given in seconds.
 
     :param seconds: Time in seconds
     :param granularity: The maximum number of interval levels to report

@@ -98,7 +98,7 @@ help:
 	@$(ECHO) "Usage: make [TARGETS]"
 	@$(ECHO) 
 	@$(ECHO) "Available targets:"
-	@$(ECHO) "	init    - perform project initialisation [run once before anything else]"
+	@$(ECHO) "	init    - perform project initialization [run once before anything else]"
 	@$(ECHO) "	build   - build all project software"
 	@$(ECHO) "	install - install all project software"
 	@$(ECHO) "	docs    - build documentation"
@@ -160,16 +160,16 @@ endif
 # Build the project documentation
 .PHONY: docs
 docs: $(DOCS_LIST) docs-update
-	@$(ECHO_NNL) "Building documenation..."
+	@$(ECHO_NNL) "Building documentation..."
 	@cd docs;sphinx-build . _build
 	@$(ECHO) "Done."
 
 # Update API documentation
-# n.b.: 'build' is a dependancy because a build needs to be in place
+# n.b.: 'build' is a dependency because a build needs to be in place
 #       in order to generate executable syntax documentation.
 .PHONY: docs-update
 docs-update: build $(BUILD_DIR_DOCS)
-	@$(ECHO_NNL) "Updating API documenation..."
+	@$(ECHO_NNL) "Updating API documentation..."
 	@update_gbpBuild_docs $(PWD)
 	@$(ECHO) "Done."
 
@@ -189,7 +189,7 @@ project-clean-stop:
 	@$(ECHO) "Done."
 project-clean: project-clean-start docs-clean tests-clean project-clean-stop
 
-# Remove the documenation build directory
+# Remove the documentation build directory
 .PHONY: docs-clean
 docs-clean:
 	@rm -rf docs/__pycache__
@@ -210,7 +210,7 @@ tests:	.print_status $(TEST_LIST)
 # Generate code coverage reports
 coverage:	.print_status build $(COVERAGE_LIST)
 
-# Make liniting suggestions
+# Make linting suggestions
 lint-check:	.print_status $(LINT_CHECK_LIST)
 
 # Apply all linting suggestions

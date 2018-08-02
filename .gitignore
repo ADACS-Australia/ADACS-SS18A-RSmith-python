@@ -21,6 +21,9 @@ __pycache__
 # .vi swap files
 *.*.swp
 
+# ispell backup files
+*.*.bak
+
 # cmake stuff
 .cmake-tmp*
 

@@ -3,7 +3,7 @@ import sys
 import importlib
 from setuptools import setup, find_packages
 
-# Make sure that what's in this path takes precidence
+# Make sure that what's in this path takes precedence
 # over an installed version of the project
 sys.path.insert(0, os.path.abspath(__file__))
 
@@ -14,7 +14,7 @@ package_root_dir = os.path.abspath(os.path.dirname(__file__))
 # the path, which gets scrambled during a virtual env install)
 package_name = 'lal_cuda'
 
-# Make sure that what's in this path takes precidence
+# Make sure that what's in this path takes precedence
 # over an installed version of the project
 sys.path.insert(0, os.path.join(package_root_dir, package_name))
 

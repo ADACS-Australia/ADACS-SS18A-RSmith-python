@@ -1,4 +1,4 @@
-"""This module provides a `project` class for polling the metadata describing a
+"""This module provides a `project` class for polling the meta data describing a
 gbpBuild project."""
 import shutil
 import filecmp
@@ -12,7 +12,7 @@ package_parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..
 package_root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 package_name = os.path.basename(package_root_dir)
 
-# Make sure that what's in this path takes precidence
+# Make sure that what's in this path takes precedence
 # over an installed version of the project
 sys.path.insert(0, package_parent_dir)
 
@@ -44,7 +44,7 @@ class project:
         # Set the paths to the project file(s)
         path_project_file = this_pkg.find_in_parent_path(self.path_call, self.filename_project_filename, check=False)
 
-        # ... if not found, maybe we havn't make a copy in a package directory yet.
+        # ... if not found, maybe we haven't make a copy in a package directory yet.
         # Assume that path we have been passed is a package directory and look for
         # 'setup.py' as the place where the project files should be.
         if(not path_project_file):

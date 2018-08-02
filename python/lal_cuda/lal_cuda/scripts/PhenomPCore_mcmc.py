@@ -5,6 +5,7 @@ import click
 import emcee
 import pickle
 import pylab as plt
+from chainconsumer import ChainConsumer
 
 from scipy.misc import logsumexp
 
@@ -13,9 +14,6 @@ import lal_cuda
 # Generate mocks for these if we are building for RTD
 lal = lal_cuda.import_mock_RTD("lal")
 lalsimulation = lal_cuda.import_mock_RTD("lalsimulation")
-
-# Make sure this is after the `_tkinter` import above
-from chainconsumer import ChainConsumer
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -41,7 +39,7 @@ def htilde_of_f(freqs, m1, m2, chi1L, chi2L, chip, thetaJ, alpha, dist, fplus, f
 
     fref = 20
 
-    # 0Hz, so use this to get the wavefrom from fmin
+    # 0Hz, so use this to get the waveform from fmin
     if(legacy):
         H = lalsimulation.SimIMRPhenomPFrequencySequence(
             freqs, chi1L, chi2L, chip, thetaJ, m1, m2, dist, alpha, phi_c, fref, 1, None)
@@ -110,7 +108,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.option('--n_steps', type=int, default=2000, show_default=True, help='Specify the number of emcee steps to take')
 @click.option('--freqs_range', type=(float, float), default=(0., 1e10),
               help='Specify the frequency range of the fit as MIN MAX.')
-@click.option('--use_buffer/--no-use_buffer', default=True, show_default=True, help='Use a buffer for accelleration.')
+@click.option('--use_buffer/--no-use_buffer', default=True, show_default=True, help='Use a buffer for acceleration.')
 @click.option('--n_streams', type=int, default=0, show_default=True, help='Number of asynchronous streams')
 @click.option('--legacy/--no-legacy', default=False, show_default=True,
               help='Specify this option if a legacy version of LALSuite (without buffer support) is being used.')
@@ -136,7 +134,7 @@ def PhenomPCore_mcmc(
         data_files):
     """This script either generates (default) or plots (by adding the
     option: --filename_plot) an MCMC chain describing the posterior probability
-    of a model (gernerated from LALSuite; see below) fit to a two-file dataset
+    of a model (generated from LALSuite; see below) fit to a two-file dataset
     (given by the optional positional arguments; a default dataset stored with
     the package is used by default, if no positional arguments are given).
 
@@ -211,7 +209,7 @@ def PhenomPCore_mcmc(
 
         # Confirm that the two data files have the same freq array
         if(not np.array_equal(freqs, freqs_PSD)):
-            lal_cuda.log.error("Input data files do not have compatable frequency arrays.")
+            lal_cuda.log.error("Input data files do not have compatible frequency arrays.")
 
         # Initialize buffer
         buf = None

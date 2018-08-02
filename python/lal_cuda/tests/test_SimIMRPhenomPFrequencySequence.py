@@ -13,7 +13,7 @@ legacy = False
 
 def check_against_reference(use_buffer, n_streams, filename_ref_inputs):
 
-    # Initialise inputs for run
+    # Initialize inputs for run
     inputs_i = model.inputs.read(filename_ref_inputs)
 
     # Create buffer (if needed)
@@ -62,7 +62,7 @@ def check_against_reference(use_buffer, n_streams, filename_ref_inputs):
         buf = None
 
     # assert no error message has been registered, else print messages
-    assert not errors, "errors occured:\n{}".format("\n".join(errors))
+    assert not errors, "errors occurred:\n{}".format("\n".join(errors))
 
 # *** Set the grid of tests to perform ***
 
