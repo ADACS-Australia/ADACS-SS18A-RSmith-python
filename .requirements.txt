@@ -34,3 +34,6 @@ scipy == 1.0.0
 
 # python/lal_cuda/setup.py: 4
 setuptools == 38.5.1
+
+# python/lal_cuda/lal_cuda/__init__.py
+mock==2.0.0
