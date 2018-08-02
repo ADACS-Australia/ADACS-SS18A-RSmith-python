@@ -1,4 +1,4 @@
-[![Documentation Status](https://readthedocs.org/projects/ADACS-SS18A-RSmith-python/badge/?version=latest)](http://ADACS-SS18A-RSmith-python.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/adacs-ss18a-rsmith-python/badge/?version=latest)](https://adacs-ss18a-rsmith-python.readthedocs.io/en/latest/?badge=latest)
 
 # lal_cuda
 
