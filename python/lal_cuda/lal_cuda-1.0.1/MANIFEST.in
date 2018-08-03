@@ -1,0 +1,3 @@
+include .package.json .project_aux.json .project.json setup.cfg
+graft data/
+recursive-include * *.txt *.py *.docstring
